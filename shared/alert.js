@@ -4,11 +4,6 @@ import { createHash } from 'crypto';
 const COOLDOWN_MS = 5 * 60 * 1000;
 const sentAlerts = new Map();
 
-const SMTP_HOST = 'mail.islam.ms';
-const ALERT_TO = process.env.ALERT_EMAIL_TO || 'info@islam.ms';
-const ALERT_FROM = process.env.ALERT_EMAIL_FROM || `alerts@${SMTP_HOST}`;
-const ALERT_ENABLED = process.env.ALERT_ENABLED !== 'false';
-
 function fingerprint(subject) {
     return createHash('md5').update(subject).digest('hex');
 }
@@ -35,7 +30,11 @@ setInterval(() => {
 }, COOLDOWN_MS);
 
 export function sendAlert(subject, body) {
-    if (!ALERT_ENABLED) return;
+    const alertTo = process.env.ALERT_EMAIL_TO || 'site.islam.ms@gmail.com';
+    const alertFrom = process.env.ALERT_EMAIL_FROM || 'alerts@mail.islam.ms';
+    const alertEnabled = process.env.ALERT_ENABLED !== 'false';
+
+    if (!alertEnabled) return;
 
     const fp = fingerprint(subject);
     if (isThrottled(fp)) return;
@@ -47,8 +46,8 @@ export function sendAlert(subject, body) {
     const bodyWithTime = `Time: ${timestamp}\nHost: ${hostname}\n\n${body}`;
 
     const message = [
-        `From: ${ALERT_FROM}`,
-        `To: ${ALERT_TO}`,
+        `From: ${alertFrom}`,
+        `To: ${alertTo}`,
         `Subject: ${fullSubject}`,
         `Content-Type: text/plain; charset=utf-8`,
         ``,
