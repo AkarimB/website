@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "displayName": "تفسير القرآن",
+      "translator_foreign": "تفسير القرآن",
+      "translator": null,
+      "fileUrl": "https://www.islam.ms/data/tafsir/quran.ar.tafsir.db",
+      "fileName": "quran.ar.tafsir.db",
+      "current_version": "2"
+    },
+    {
+      "id": "2",
+      "displayName": "إعراب القرآن",
+      "translator_foreign": "إعراب القرآن",
+      "translator": null,
+      "fileUrl": "https://www.islam.ms/data/tafsir/quran.ar.irab.db",
+      "fileName": "quran.ar.irab.db",
+      "current_version": "2"
+    }
+  ]
+}

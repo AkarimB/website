@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Prayer Times and qiblah cities around the world</title>
+	<meta name="description" content="Accurate Prayer Times and qiblah cities around the world" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+	<link rel="preload" href="leaflet/leaflet.css" as="style">
+	<link rel="preload" href="leaflet/leaflet.js" as="script">
+	<link rel="preload" href="geomag.js" as="script">
+	<link rel="stylesheet" href="leaflet/leaflet.css" type="text/css" media="all" />
+	<script src="geomag.js"></script>
+	<script src="leaflet/leaflet.js"></script>
+
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+		}
+		html, body, #map {
+			height: 100%;
+			width: 100vw;
+		}
+	</style>
+</head>
+
+<body>
+	<a id="close" href="index.html"><img alt="close" src="close.png" style="position: fixed; z-index: 1000; right: 0px; opacity: 0.9;"></a>
+	<p style="position: fixed; z-index: 1000; left: 50px; color: gray; font-family: sans-serif; font-size: 11px; opacity: 0.9;">the map's author said</p>
+    
+	<div id="map"></div>
+
+    <script src="map.js?v=1" defer></script>
+</body>
+
+</html>

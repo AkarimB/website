@@ -1,0 +1,423 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+	<head>
+		<title>Clavier arabe en ligne Islam.ms</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link rel="shortcut icon" type="image/x-icon" href="images/coupole_verte.ico" />
+		<meta name="Description" content="Clavier en ligne pour écrire les lettres de l'alphabet arabe">
+		<style type="text/css">
+		@font-face {
+		    font-family: me_quranR3HOQ;
+		    font-style: normal;
+		    src: url('https://www.islam.ms/HAFS.ttf');
+		}
+	
+			.bt {
+				cursor: pointer;
+				
+				font-size: 20pt;
+				font-family: sans-serif;
+			}
+			
+			.bts {width:66pt;font-size: 20pt;}
+			.btb {
+				cursor: pointer;
+				
+				font-size: 20pt;
+				
+				font-family: sans-serif;
+			}
+			.bta {
+				cursor: pointer;
+				font-size: 20pt;
+				font-family: sans-serif;
+			}
+			.bf {
+				cursor: pointer;
+				font-size: 9pt;
+				color: #666666;
+			}
+			.carar {
+				font-size: 18pt;
+				color: blue;
+				font-family: sans-serif;
+			}
+			.cadr {
+				width: 97%;
+				font-size: 22pt;
+				font-family: me_quranR3HOQ;
+				background-color: #f9e9ac;
+				border-radius: 7px;
+				direction: rtl;
+				padding: 5px;
+				scrollbar-base-color: transparent;
+				scrollbar-track-color: transparent;
+			}
+		</style>
+		<script type="text/javascript">	
+
+			if (navigator.language == 'fr' || navigator.language.slice(0, -3) == 'fr') {
+
+				document.title = 'Clavier arabe en ligne Islam.ms';
+
+			} else if (navigator.language == 'en' || navigator.language.slice(0, -3) == 'en') {
+				document.title = 'Arabic keybord online Islam.ms';
+
+			} else if (navigator.language == 'ar' || navigator.language.slice(0, -3) == 'ar') {
+				document.title = 'لوحة المفاتيح العربية على الانترنت Islam.ms';
+
+			} else {
+				document.title = 'Arabic keybord online Islam.ms';
+
+			}
+
+		</script>
+	</head>
+	<body onload="conversion.saisie.focus()">
+	
+		<div align="center">
+			<form name="conversion">
+				<textarea name="saisie" onkeyup="transcrire()" dir="rtl" rows="4" class="cadr" ></textarea>
+				<br>
+				<input onclick="conversion.saisie.select();copy()" value="sélectionner" class="bf" type="button">
+				<br>
+				<table style=" font-family: sans-serif ; color:green">
+					<tbody>
+						<tr align="center">
+							<td>d'</td>
+							<td>d</td>
+							<td>H'</td>
+							<td>H</td>
+							<td>j</td>
+							<td>t'</td>
+							<td>t</td>
+							<td>b</td>
+							<td>a</td>
+						</tr>
+						<tr align="center">
+							<td style="height: 51px">
+							<input value="ذ" onclick="writeArabicLetter('ذ')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="د" onclick="writeArabicLetter('د')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="خ" onclick="writeArabicLetter('خ')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ح" onclick="writeArabicLetter('ح')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ج" onclick="writeArabicLetter('ج')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ث" onclick="writeArabicLetter('ث')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ت" onclick="writeArabicLetter('ت')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ب" onclick="writeArabicLetter('ب')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ا" onclick="writeArabicLetter('ا')" class="btb" type="button">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<table style=" font-family:sans-serif; color:green">
+					<tbody>
+						<tr align="center">
+							<td>Z</td>
+							<td>T</td>
+							<td>D</td>
+							<td>S</td>
+							<td>s'</td>
+							<td>s</td>
+							<td>z</td>
+							<td>r</td>
+						</tr>
+						<tr align="center">
+							<td>
+							<input value="ظ" onclick="writeArabicLetter('ظ')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ط" onclick="writeArabicLetter('ط')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ض" onclick="writeArabicLetter('ض')" class="bt" a="" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ص" onclick="writeArabicLetter('ص')" class="bt" a="" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ش" onclick="writeArabicLetter('ش')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="س" onclick="writeArabicLetter('س')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ز" onclick="writeArabicLetter('ز')" class="bt" type="button">
+							</td>
+							<td style="height: 51px">
+							<input value="ر" onclick="writeArabicLetter('ر')" class="bt" type="button">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+
+		<table style=" font-family:sans-serif; color:green">
+					<tbody>
+						<tr align="center">
+							<td>h</td>
+							<td>n</td>
+							<td>m</td>
+							<td>l</td>
+							<td>k</td>
+							<td>q</td>
+							<td>f</td>
+							<td>g'</td>
+							<td>g</td>
+						</tr>
+						<tr align="center">
+
+							<td>
+							<input value="ه" onclick="writeArabicLetter('ه')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ن" onclick="writeArabicLetter('ن')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="م" onclick="writeArabicLetter('م')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ل" onclick="writeArabicLetter('ل')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ك" onclick="writeArabicLetter('ك')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ق" onclick="writeArabicLetter('ق')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ف" onclick="writeArabicLetter('ف')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="غ" onclick="writeArabicLetter('غ')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ع" onclick="writeArabicLetter('ع')" class="bt" type="button">
+							</td>
+
+						</tr>
+					</tbody>
+				</table>
+
+				<br>
+				<table>
+					<tbody>
+						<tr valign="top">
+							<td>
+							<input value="ء" onclick="writeArabicLetter('ء')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ى" onclick="writeArabicLetter('ى')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ئ" onclick="writeArabicLetter('ئ')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ؤ" onclick="writeArabicLetter('ؤ')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="ة" onclick="writeArabicLetter('ة')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="إ" onclick="writeArabicLetter('إ')" class="btb" type="button">
+							</td>
+							<td>
+							<input value="أ" onclick="writeArabicLetter('أ')" class="btb" type="button">
+							</td>
+							<td>
+							<input value="آ" onclick="writeArabicLetter('آ')" class="btb" type="button">
+							</td>
+
+							<td>
+							<input value="ي" onclick="writeArabicLetter('ي')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="و" onclick="writeArabicLetter('و')" class="bt" type="button">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<br>
+
+			<table>
+					<tbody>
+						<tr valign="top">
+							<td>
+							<input value="ـ" onclick="writeArabicLetter('ـ')" class="bt" type="button">
+							</td>	
+							<td>
+							<input value="َ&nbsp;" onclick="writeArabicLetter('َ')" class="btb" title="fatḥa" type="button">
+							</td>
+							<td>
+							<input value="ً&nbsp;" onclick="writeArabicLetter('ً')" class="btb" type="button">
+							</td>
+							<td>
+							<input value="ُ&nbsp;" onclick="writeArabicLetter('ُ')" class="btb" type="button">
+							</td>
+							<td>
+							<input value="ٌ&nbsp;" onclick="writeArabicLetter('ٌ')" class="btb" type="button">
+							</td>
+							<td>
+							<input value="ّ&nbsp;" onclick="writeArabicLetter('ّ')" class="btb" type="button">
+							</td>
+							<td>
+							<input value="ْ&nbsp;" onclick="writeArabicLetter('ْ')" class="btb" type="button">
+							</td>
+							<td>
+							<input value="ِ&nbsp;" onclick="writeArabicLetter('ِ')" class="btb" title="kasra" type="button">
+							</td>
+							<td>
+							<input value="ٍ&nbsp;" onclick="writeArabicLetter('ٍ')" class="btb" type="button">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<br>
+			
+				<table>
+					<tbody>
+						<tr valign="top">
+							<td>
+							<input value="؟" onclick="writeArabicLetter('؟')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="!" onclick="writeArabicLetter('!')" class="bt" type="button">
+							</td>
+
+							<td>
+							<input value="؛" onclick="writeArabicLetter('؛')" class="bt" type="button">
+							</td>
+							
+							<td>
+							<input value=" " onclick="writeArabicLetter(' ')" class="bts" type="button">
+							</td>
+							
+							<td>
+							<input value="،" onclick="writeArabicLetter('،')" class="bt" type="button">
+							</td>
+							
+							<td>
+							<input value="." onclick="writeArabicLetter('.')" class="bt" type="button">
+							</td>
+							<td>
+							<input value=":" onclick="writeArabicLetter(':')" class="bt" type="button">
+							</td>
+							
+						</tr>
+					</tbody>
+				</table>
+<br>
+
+	<table>
+					<tbody>
+						<tr valign="top">
+						
+							
+							<td>
+							<input value="_" onclick="writeArabicLetter('_')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="-" onclick="writeArabicLetter('-')" class="bt" type="button">
+							</td>
+
+							<td>
+							<input value="[" onclick="writeArabicLetter(']')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="]" onclick="writeArabicLetter('[')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="{" onclick="writeArabicLetter('}')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="}" onclick="writeArabicLetter('{')" class="bt" type="button">
+							</td>
+
+							<td>
+							<input value="(" onclick="writeArabicLetter(')')" class="bt" type="button">
+							</td>
+							<td>
+							<input value=")" onclick="writeArabicLetter('(')" class="bt" type="button">
+							</td>
+							
+							
+						</tr>
+					</tbody>
+				</table>
+							
+				<table style=" font-family:sans-serif; color:green">
+					<tbody>
+						<tr align="center">
+							<td>0</td>
+							<td>1</td>
+							<td>2</td>
+							<td>3</td>
+							<td>4</td>
+							<td>5</td>
+							<td>6</td>
+							<td>7</td>
+							<td>8</td>
+							<td>9</td>
+						</tr>
+						<tr align="center">
+							<td>
+							<input value="٠" onclick="writeArabicLetter('٠')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="١" onclick="writeArabicLetter('١')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="٢" onclick="writeArabicLetter('٢')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="٣" onclick="writeArabicLetter('٣')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="٤" onclick="writeArabicLetter('٤')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="٥" onclick="writeArabicLetter('٥')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="٦" onclick="writeArabicLetter('٦')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="٧" onclick="writeArabicLetter('٧')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="٨" onclick="writeArabicLetter('٨')" class="bt" type="button">
+							</td>
+							<td>
+							<input value="٩" onclick="writeArabicLetter('٩')" class="bt" type="button">
+							</td>
+							
+						
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		</div>
+		
+		<br>
+		<p style="text-align: center;"><a title="Islam.ms" href="https://www.islam.ms/">Islam.ms</a></p>
+
+		<script type="text/javascript" src="scripts/rep.js"></script>
+		<script type="text/javascript" src="scripts/conv.js"></script>
+		
+	</body>
+</html>

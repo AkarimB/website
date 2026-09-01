@@ -1,0 +1,156 @@
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const langParam = urlParams.get('lang')
+    const placeParam = urlParams.get('place')
+    //console.log(placeParam);
+    const latParam = urlParams.get('lat')
+    //console.log(latParam);
+    const lonParam = urlParams.get('lon')
+    //console.log(lonParam);
+    if (queryString) document.getElementById("close").setAttribute('href', "index.html" +queryString);
+    var defaultPlace, defaultLat, defaultLon ;
+    
+    if (placeParam && latParam && lonParam) {
+        defaultPlace = placeParam
+        defaultLat = latParam
+        defaultLon = lonParam
+    } else {
+        defaultPlace = "Paris France";
+        defaultLat = 48.8946897;
+        defaultLon = 2.34700529;
+    }
+
+		var lat, lng, mecalat = 21.422484, mecalng = 39.826151;
+		if (!localStorage.lat || !localStorage.lng) {
+			lat = Number(defaultLat);
+            lng = Number(defaultLon);
+		} else {
+			lat = Number(localStorage.lat);
+			lng = Number(localStorage.lng);
+		}
+	
+		var mymap = L.map('map').setView([lat, lng], 18);
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				maxZoom: 18,
+				attribution: 'Map data <a href="https://www.openstreetmap.org">OpenStreetMap</a>'
+			}).addTo(mymap);
+
+		initMap(lat, lng);
+
+		function onMapClick(e) {
+			setMarker(e.latlng.lat, e.latlng.lng);
+		}
+
+		function setMarker(latitude, longitude) {
+
+			var marker = L.marker([latitude, longitude]).addTo(mymap);
+			var info = displayTinfo(latitude, longitude);
+			marker.bindPopup(info).openPopup();
+			var polygon = L.polygon([[latitude, longitude],[mecalat, mecalng]]).addTo(mymap);
+		}
+
+    	mymap.on('click', onMapClick);
+
+		function initMap(latitude, longitude) {
+
+			var marker = L.marker([latitude, longitude]).addTo(mymap);
+			var latLngs = [ marker.getLatLng() ];
+			var markerBounds = L.latLngBounds(latLngs);
+			var info = displayTinfo(latitude, longitude);
+			mymap.fitBounds(markerBounds);
+
+			marker.bindPopup(info).openPopup();
+
+			var polygon = L.polygon([[latitude, longitude],[mecalat, mecalng]]).addTo(mymap);
+
+		}
+
+		function CalculateHeading(latitude, longitude) {
+        var lat1 = (latitude * Math.PI) / 180;
+        var lon1 = (longitude * Math.PI) / 180;
+        var lat2 = (mecalat * Math.PI) / 180;
+        var lon2 = (mecalng * Math.PI) / 180;
+        var dLon = lon2 - lon1;
+        var dPhi = Math.log(Math.tan(lat2 / 2.0 + Math.PI / 4.0) / Math.tan(lat1 / 2.0 + Math.PI / 4.0));
+        if (Math.abs(dLon) > Math.PI)
+            dLon = (dLon > 0) ? -(2 * Math.PI - dLon) : (2 * Math.PI + dLon);
+        var azimuthRadians = Math.atan2(dLon, dPhi);
+        var capb1 = (azimuthRadians * 180) / Math.PI;
+        var capb = (capb1 >= 0) ? capb1 : (capb1 + 360);
+
+        return capb;
+    }
+
+    function CalculateDeviation(latitude, longitude) {
+        var date = new Date();
+        var geoMag = geoMagFactory();
+        var myGeoMag = geoMag(latitude, longitude, 0.0, date);
+        return myGeoMag.dec;
+    }
+
+    function getCompassNumber360(latitude, longitude) {
+        var Heading = CalculateHeading(latitude, longitude);
+        var magnetic = CalculateDeviation(latitude, longitude);
+        return 360 - (Heading - (magnetic));
+    }
+
+    function GetQiblaMagnetic(lat, lng) {
+        var Heading = CalculateHeading(lat, lng);
+        var magnetic = CalculateDeviation(lat, lng);
+        return Heading - (magnetic);
+    }
+
+    function getCompassNumber400(latitude, longitude) {
+        return ((getCompassNumber360(latitude, longitude)) / 360) * 400;
+    }
+
+		function displayTinfo(latitude, longitude) {
+        var lat1 = latitude.toFixed(3);
+        var long1 = longitude.toFixed(3);
+        var latMeca = mecalat.toFixed(3);
+        var longMeca = mecalng.toFixed(3);
+        var decMag = CalculateDeviation(latitude, longitude).toFixed(3);
+        var qiblaC = CalculateHeading(latitude, longitude).toFixed(3);
+        var qiblaM = GetQiblaMagnetic(latitude, longitude).toFixed(3);
+        var b360 = getCompassNumber360(latitude, longitude).toFixed(3);
+        var b400 = getCompassNumber400(latitude, longitude).toFixed(3);
+
+        if (navigator.language == 'fr' || navigator.language.slice(0, -3) == 'fr' || langParam == 'fr') {
+
+            var srchlat = 'Lieu: Latitude:';
+            var srchlong = 'Longitude:';
+            var srchlatm = 'Ka`bah Lat:';
+            var srchmag = 'Déviation Magnétique:';
+            var srchqib = 'Qiblah, Cap:';
+            var srchqibm = 'Qiblah magnétique:';
+            var srchcom3 = 'Numéro boussole 360:';
+            var srchcom4 = 'Numéro boussole 400:';
+
+        } else if (navigator.language == 'ar' || navigator.language.slice(0, -3) == 'ar' || langParam == 'ar') {
+            var srchlat = 'خط العرض:';
+            var srchlong = 'خط الطول:';
+            var srchlatm = 'الكعبة خط العرض:';
+            var srchmag = 'الانحراف المغناطيسي:';
+            var srchqib = 'قبلة:';
+            var srchqibm = 'قبلة المغناطيسية:';
+            var srchcom3 = 'رقم بوصلة 360:';
+            var srchcom4 = 'رقم بوصلة 400:';
+
+        } else {
+
+            var srchlat = 'Latitude:';
+            var srchlong = 'Longitude:';
+            var srchlatm = 'Ka`bah Lat:';
+            var srchmag = 'Magnetic Deviation:';
+            var srchqib = 'Qiblah, Heading:';
+            var srchqibm = 'Qiblah magnetic:';
+            var srchcom3 = 'Compass 360 number:';
+            var srchcom4 = 'Compass 400 number:';
+
+        }
+
+        var message = srchlat + ' ' + lat1 + ' ' + srchlong + ' ' + long1 + '<br/>' + srchlatm + ' ' + latMeca + ' ' + srchlong + ' ' + longMeca + '<br/>' + srchmag + ' ' + decMag + '<br/>' + srchqib + ' ' + qiblaC + '<br/>' + srchqibm + ' ' + qiblaM + '<br/>' + srchcom3 + ' ' + b360 + '<br/>' + srchcom4 + ' ' + b400 ;
+        localStorage.message = message;
+        return message;
+
+    }

@@ -1,0 +1,37 @@
+{
+  "name": "site-v2",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Islam.ms website - v2 clean",
+  "author": "Islam.ms",
+  "license": "ISC",
+  "scripts": {
+    "admin": "node server/admin.js",
+    "site": "node server/site.js",
+    "api": "node server/api.js",
+    "sync": "node scripts/sync.js",
+    "search": "node server/search.js"
+  },
+  "dependencies": {
+    "@mysql/xdevapi": "^8.0.35",
+    "bcrypt": "latest",
+    "connect-redis": "latest",
+    "cookie-parser": "latest",
+    "cookies": "latest",
+    "csrf": "latest",
+    "dotenv": "^17.4.2",
+    "express": "latest",
+    "express-session": "latest",
+    "formidable": "latest",
+    "i18n": "latest",
+    "multer": "latest",
+    "redis": "latest",
+    "svg-captcha": "latest"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true,
+    "onnxruntime-node@1.24.3": true,
+    "protobufjs@7.6.5": true,
+    "sharp@0.34.5": true
+  }
+}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Prayer Times and qiblah cities around the world</title>
+	<meta name="description" content="Accurate Prayer Times and qiblah cities around the world" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8" />
+	<meta property="og:image" content="https://www.islam.ms/images/islam-ms.jpg">
+	<meta property="og:image:type" content="image/png">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="1024">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!--<link rel="preload" href="index.css?v=1" as="style">
+	<link rel="preload" href="salat.js?v=1" as="script">
+	<script src="../geomag.js?v=1" defer></script>
+	<link rel="preload" href="geomag.js?v=1" as="script">-->
+
+	<link rel="stylesheet" href="index.css?v=5" type="text/css" media="all" />
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+	<script src="geomag.js?v=4" defer></script>
+</head>
+
+<body>
+	<center>
+		<button onclick="openSearch()" class="subButton" id="sbutton" aria-label="ouvrir la recherche"></button>
+	</center>
+
+	<div id="search" class="inputAddress">
+		<input type="text" id="address" value="" aria-label="Enter address or location"
+			placeholder="Enter address or location" />
+		<button id="srch" onclick="searchAddress(document.getElementById('address').value)"
+			class='button'>Search</button>
+		<button id="loc" onclick="InitMyPosition()" class='button'>Locate me</button>
+	</div>
+
+
+	<p id="adrr" style="text-align: center; margin: 11px auto;"></p>
+	<div id="tdate"></div>
+	<div class="imsakChuruq">
+		<div class="imsakDigit">
+			<div id="imsakText">Imsak</div>
+			<div id="imsakTime">00:00</div>
+		</div>
+		<div class="infoNextPrayer">
+			<div id="clock">11:11:00</div>
+			<div id="infoNextPrayer"></div>
+		</div>
+		<div id="churuqDigit" class="churuqDigit">
+			<div id="churuqText">Churuq</div>
+			<div id="churuqTime">00:00</div>
+		</div>
+	</div>
+
+	<div class="tablePrayer" id="tablePrayer">
+
+	</div>
+
+	<div class="greenTable" id="nightInfo">
+
+	</div>
+
+	<div class="greenTable" id="table"></div>
+
+	<center>
+		<button id="abuton" class='button' onclick="adhanf();">Settings</button>
+		<button id="viq" class="button" onclick="location.href='map.html'">Voir Qiblah</button>
+		<button id="tmsg" class='button' onclick="openMenu('messageB')">Islamic Infos</button>
+	</center>
+
+	<div class="greenTable" id="dadhan">
+		<center>
+			<button class='button' onclick="sound.play();">Play</button>
+			<button class='button' onclick="sound.pause();">Pause</button>
+		</center>
+		<center>
+			<button class='button' onclick="acFajr();" id="fajr">Fajr OFF</button>
+			<button class='button' onclick="acDhuhr();" id="dhuhr">Dhuhr OFF</button>
+		</center>
+		<center>
+			<button class='button' onclick="acAsr();" id="asr">Asr OFF</button>
+			<button class='button' onclick="acMaghrib();" id="maghrib">Maghrib OFF</button>
+		</center>
+		<center>
+			<button class='button' onclick="acIsha();" id="isha">Isha OFF</button>
+			<button class='button' onclick="setFormat();" id="format12">Format 24</button>
+		</center>
+		<center>
+			<button class='button' onclick="acHanafi();" id="hanafi">Asr Methode</button>
+		</center>
+		<center>
+			<label for="ishaAngle" id="ishaLabel">Isha Angle</label>
+			<input type="number" id="ishaAngle" value="13" aria-label="Isha Angle" />
+		</center>
+
+		<center>
+			<label for="fajrAngle" id="fajrLabel">Fajr Angle</label>
+			<input type="number" id="fajrAngle" value="18" aria-label="Fajr Angle" />
+		</center>
+
+		<h3 id="tunePrayer">Adjust Prayer Times</h3>
+
+		<center>
+			<label for="fajrTune" id="fajrTuneLabel">Fajr</label>
+			<input type="number" id="fajrTune" value="5" aria-label="Fajr Tune" />
+		</center>
+
+		<center>
+			<label for="dhuhrTune" id="dhuhrTuneLabel">Dhuhr</label>
+			<input type="number" id="dhuhrTune" value="5" aria-label="Dhuhr Tune" />
+		</center>
+
+		<center>
+			<label for="asrTune" id="asrTuneLabel">Asr</label>
+			<input type="number" id="asrTune" value="5" aria-label="Asr Tune" />
+		</center>
+
+		<center>
+			<label for="maghribTune" id="maghribTuneLabel">Maghrib</label>
+			<input type="number" id="maghribTune" value="5" aria-label="Maghrib Tune" />
+		</center>
+
+		<center>
+			<label for="ishaTune" id="ishaTuneLabel">Isha</label>
+			<input type="number" id="ishaTune" value="5" aria-label="Isha Tune" />
+		</center>
+
+		<center>
+			<label for="elevation" id="elevationLabel">Elevation</label>
+			<input type="number" id="elevation" value="0" aria-label="Elevation" />
+			<button class='button' onclick="getElevation();">Get Elevation</button>
+		</center>
+
+		<center>
+			<button class='button' onclick="setAngle();">OK</button>
+		</center>
+	</div>
+
+	<div class="greenTable" id="messageB">
+		<center>
+			<button class='button' onclick="clickMessage('fr', false)" id="clickMFr">Français</button>
+			<button class='button' onclick="clickMessage('ar', false)" id="clickMAr">عربي</button>
+			<button class='button' onclick="clickMessage('en', false)" id="clickMEn">English</button>
+		</center>
+
+		<center>
+			<button class='button' onclick="clickMessageH()" id="clickHideMessage">Hide</button>
+		</center>
+
+	</div>
+
+	<center id="address_name"></center>
+	<div align="center" class="greenTable" id="tinfo"></div>
+
+	<center>
+		<button id="vim" onclick="displayMonthTable()" class='button'>horaires du mois</button>
+	</center>
+
+
+	<div id="tmonth" style="display: none; margin-top: 5px;">
+		<table id="arrowTab" style="margin: 11px auto;">
+			<tr>
+				<td><button onclick="viewMonth(-1)" class="button">&lt;&lt;</button></td>
+				<td id="table-title" class="caption"></td>
+				<td><button onclick="viewMonth(+1)" class="button">&gt;&gt;</button></td>
+			</tr>
+		</table>
+
+		<table id="timetable" class="timetable">
+			<tbody></tbody>
+		</table>
+
+	</div>
+
+	<div id="tmessage"> </div>
+
+	<div id="explainText">
+	</div>
+
+	<script src="salat.js?v=7" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Static assets (generated/uploaded)
+public/images/*
+data/*
+uploads/
+
+# Editor/IDE
+*~
+*.swp
+*.swo
+*.tmp
+.idea/
+.vscode/
+
+# Deploy version
+.deploy_version
+
+# Sync logs
+sync.log
