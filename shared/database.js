@@ -9,7 +9,7 @@ const options = {
   user: process.env.MYSQL_USER || process.env.DB_USER,
   password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD,
   schema: process.env.MYSQL_DATABASE || process.env.DB_NAME,
-  connectTimeout: 100000
+  connectTimeout: 30000
 };
 
 const client = mysqlx.getClient(options, {

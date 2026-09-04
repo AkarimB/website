@@ -59,7 +59,7 @@ async function listPost(type, lang, pageId, searchQuery, res) {
         });
     } finally {
         if (session) {
-            await session.close();
+            try { await session.close(); } catch {}
         }
     }
 }
@@ -110,7 +110,7 @@ async function getPost(lang, id, res) {
         });
     } finally {
         if (session) {
-            await session.close();
+            try { await session.close(); } catch {}
         }
     }
 }
@@ -152,7 +152,7 @@ async function getApi(lang, type, ord, res, q) {
         });
     } finally {
         if (session) {
-            await session.close();
+            try { await session.close(); } catch {}
         }
     }
 }
@@ -182,7 +182,7 @@ async function getVersion(lang, type, res) {
         });
     } finally {
         if (session) {
-            await session.close();
+            try { await session.close(); } catch {}
         }
     }
 }
@@ -212,7 +212,7 @@ async function getVersions(lang, type, res) {
         });
     } finally {
         if (session) {
-            await session.close();
+            try { await session.close(); } catch {}
         }
     }
 }

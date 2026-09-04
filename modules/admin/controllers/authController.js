@@ -88,7 +88,7 @@ export const postRegister = async (req, res) => {
     const csrfToken = req.csrfToken();
     res.send(registerHtml(notif, '', '', '', '', csrfToken, lang));
   } finally {
-    if (session) await session.close();
+    if (session) { try { await session.close(); } catch {} }
   }
 };
 
@@ -159,7 +159,7 @@ export const postLogin = async (req, res) => {
     const csrfToken = req.csrfToken();
     res.send(loginHtml(notif, '', '', csrfToken, lang));
   } finally {
-    if (session) await session.close();
+    if (session) { try { await session.close(); } catch {} }
   }
 };
 

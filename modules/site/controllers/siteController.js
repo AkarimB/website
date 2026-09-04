@@ -141,7 +141,7 @@ async function listPost(lang, currentPageId, q, res) {
         sendAlert('Site listPost Error', `${err.message}\nFunction: listPost\nLang: ${lang}`);
         redirectToPage(langUrl, res);
     } finally {
-        if (sessionMysql) await sessionMysql.close();
+        if (sessionMysql) { try { await sessionMysql.close(); } catch {} }
     }
 }
 
@@ -271,7 +271,7 @@ async function getPost(lang, url, res) {
         sendAlert('Site getPost Error', `${err.message}\nFunction: getPost\nLang: ${lang}\nURL: ${url}`);
         redirectToPage(langUrl, res);
     } finally {
-        if (sessionMysql) await sessionMysql.close();
+        if (sessionMysql) { try { await sessionMysql.close(); } catch {} }
     }
 }
 
@@ -297,7 +297,7 @@ async function getPostById(lang, id, res) {
             sendAlert('Site getPostById Error', `${err.message}\nFunction: getPostById\nLang: ${lang}\nID: ${id}`);
             redirectToPage("/", res);
         } finally {
-            if (sessionMysql) await sessionMysql.close();
+            if (sessionMysql) { try { await sessionMysql.close(); } catch {} }
         }
     } else {
         redirectToPage("/", res);
