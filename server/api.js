@@ -15,6 +15,9 @@ const port = 8010;
 app.use('/', routes);
 
 app.use((err, req, res, next) => {
+    if (err instanceof URIError) {
+        return res.status(400).json({ error: 'Bad Request' });
+    }
     console.error('Unhandled API error:', err);
     sendAlert('API Unhandled Error', `${err.message}\n${err.stack}`);
     res.status(500).json({ error: 'Internal Server Error' });

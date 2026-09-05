@@ -34,6 +34,9 @@ i18n.configure({
 app.use('/', siteRoutes);
 
 app.use((err, req, res, next) => {
+    if (err instanceof URIError) {
+        return res.status(400).send('Bad Request');
+    }
     console.error('Unhandled Site error:', err);
     sendAlert('Site Unhandled Error', `${err.message}\n${err.stack}`);
     res.status(500).send('Internal Server Error');
