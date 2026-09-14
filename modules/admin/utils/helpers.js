@@ -23,7 +23,7 @@ export const constructQuery = (type, lang, q, ord, numberPerPage, queryOffset) =
 
     if (q) {
       if (type === "post" && langList.includes(lang)) {
-        let base = `SELECT id, title, url, descr, ord, pub FROM post WHERE lang = $1 AND (title ILIKE $2 OR descr ILIKE $2 OR tags ILIKE $2)`;
+        let base = `SELECT id, title, url, descr, ord, pub FROM post WHERE lang = $1 AND (title ILIKE $2 OR similarity(title, $2) > 0.1)`;
         let paramsOrder = hasOrd ? ` AND ord >= $3` : '';
         let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $4 OFFSET $5` : ` ORDER BY ${orderClause} LIMIT $3 OFFSET $4`;
         return `${base}${paramsOrder}${limitOffset}`;
