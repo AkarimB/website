@@ -19,37 +19,41 @@ export const getLangSettings = (lang, q) => {
 
 export const constructQuery = (type, lang, q, ord, numberPerPage, queryOffset) => {
     const hasOrd = !isNaN(parseInt(ord)) && ord;
-    const orderClause = hasOrd ? `ord ASC` : `date DESC`;
-
-    const queryPrefix = `SELECT id, title, url, descr, ord, pub FROM post`;
-    const queryPrefix2 = `SELECT id, title, audio, ord, pub FROM messages`;
+    const orderClause = hasOrd ? 'ord ASC' : 'date DESC';
 
     if (q) {
       if (type === "post" && langList.includes(lang)) {
-        let base = `${queryPrefix} WHERE lang = ? AND title LIKE ?`;
-        let paramsOrder = hasOrd ? ` AND ord >= ?` : ``;
-        return `${base}${paramsOrder} ORDER by ${orderClause} LIMIT ? OFFSET ?`;
+        let base = `SELECT id, title, url, descr, ord, pub FROM post WHERE lang = $1 AND title LIKE $2`;
+        let paramsOrder = hasOrd ? ` AND ord >= $3` : '';
+        let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $4 OFFSET $5` : ` ORDER BY ${orderClause} LIMIT $3 OFFSET $4`;
+        return `${base}${paramsOrder}${limitOffset}`;
       } else if (type === "nmbr") {
-        let base = `SELECT id, ord, nb, nbd, nbm, pub FROM mnumbers WHERE lang = ? AND (nb LIKE ? OR nbd LIKE ? OR nbm LIKE ?)`;
-        let paramsOrder = hasOrd ? ` AND ord >= ?` : ``;
-        return `${base}${paramsOrder} ORDER by ${orderClause} LIMIT ? OFFSET ?`;
+        let base = `SELECT id, ord, nb, nbd, nbm, pub FROM mnumbers WHERE lang = $1 AND (nb LIKE $2 OR nbd LIKE $2 OR nbm LIKE $2)`;
+        let paramsOrder = hasOrd ? ` AND ord >= $3` : '';
+        let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $4 OFFSET $5` : ` ORDER BY ${orderClause} LIMIT $3 OFFSET $4`;
+        return `${base}${paramsOrder}${limitOffset}`;
       } else {
-        let base = `${queryPrefix2} WHERE title LIKE ? AND lang = ? AND type = ?`;
-        let paramsOrder = hasOrd ? ` AND ord >= ?` : ``;
-        return `${base}${paramsOrder} ORDER by ${orderClause} LIMIT ? OFFSET ?`;
+        let base = `SELECT id, title, audio, ord, pub FROM messages WHERE title LIKE $1 AND lang = $2 AND type = $3`;
+        let paramsOrder = hasOrd ? ` AND ord >= $4` : '';
+        let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $5 OFFSET $6` : ` ORDER BY ${orderClause} LIMIT $4 OFFSET $5`;
+        return `${base}${paramsOrder}${limitOffset}`;
       }
     } else {
       if (type === "post" && langList.includes(lang)) {
-        let base = `${queryPrefix} WHERE lang = ?`;
-        let paramsOrder = hasOrd ? ` AND ord >= ?` : ``;
-        return `${base}${paramsOrder} ORDER by ${orderClause} LIMIT ? OFFSET ?`;
+        let base = `SELECT id, title, url, descr, ord, pub FROM post WHERE lang = $1`;
+        let paramsOrder = hasOrd ? ` AND ord >= $2` : '';
+        let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $3 OFFSET $4` : ` ORDER BY ${orderClause} LIMIT $2 OFFSET $3`;
+        return `${base}${paramsOrder}${limitOffset}`;
       } else if (type === "nmbr") {
-        let base = `SELECT id, ord, nb, nbd, nbm, pub FROM mnumbers WHERE lang = ?`;
-        let paramsOrder = hasOrd ? ` AND ord >= ?` : ``;
-        return `${base}${paramsOrder} ORDER by ${orderClause} LIMIT ? OFFSET ?`;
+        let base = `SELECT id, ord, nb, nbd, nbm, pub FROM mnumbers WHERE lang = $1`;
+        let paramsOrder = hasOrd ? ` AND ord >= $2` : '';
+        let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $3 OFFSET $4` : ` ORDER BY ${orderClause} LIMIT $2 OFFSET $3`;
+        return `${base}${paramsOrder}${limitOffset}`;
       } else {
-        return `${queryPrefix2} WHERE lang = ? AND type = ? ORDER by ${orderClause} LIMIT ? OFFSET ?`;
+        let base = `SELECT id, title, audio, ord, pub FROM messages WHERE lang = $1 AND type = $2`;
+        let paramsOrder = hasOrd ? ` AND ord >= $3` : '';
+        let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $4 OFFSET $5` : ` ORDER BY ${orderClause} LIMIT $3 OFFSET $4`;
+        return `${base}${paramsOrder}${limitOffset}`;
       }
     }
 };
-

@@ -1,28 +1,25 @@
-import mysqlx from '@mysql/xdevapi';
+import pg from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const options = {
-  host: process.env.MYSQL_HOST || process.env.DB_HOST,
-  port: process.env.MYSQL_PORT || 33060,
-  user: process.env.MYSQL_USER || process.env.DB_USER,
-  password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD,
-  schema: process.env.MYSQL_DATABASE || process.env.DB_NAME,
-  connectTimeout: 30000
-};
+const { Pool } = pg;
 
-const client = mysqlx.getClient(options, {
-  pooling: {
-    enabled: true,
-    maxSize: 50,
-    maxIdleTime: 50000,
-    queueTimeout: 100000
-  }
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT, 10) || 5432,
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  max: parseInt(process.env.DB_MAX_CONNECTIONS, 10) || 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
-export const getApiSession = async () => {
-  return await client.getSession();
-};
+pool.on('error', (err) => {
+  console.error('Unexpected pool error:', err);
+  process.exit(-1);
+});
 
-export const dbClient = client;
+export const query = (text, params) => pool.query(text, params);
+export default pool;

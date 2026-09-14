@@ -1,60 +1,44 @@
-import { getApiSession } from '../../../shared/database.js';
+import { query } from '../../../shared/database.js';
 import { langList, domain } from '../../../shared/constants.js';
 import { purgeCacheByUrls } from '../utils/cloudflare.js';
 
 export const sendData = async (req, res) => {
-    let session;
     try {
         const { pub, type, lang, ord, id } = req.body;
-        let query, queryId;
+        let sqlQuery, params;
 
         if (type === 'nmbr') {
             if (!id || id < 0) {
-                query = `INSERT INTO mnumbers (ord, nb, nbd, nbm, pub, lang) VALUES (?, ?, ?, ?, ?, ?)`;
-                queryId = `SELECT id FROM mnumbers WHERE lang = ? AND ord = ?`;
+                sqlQuery = `INSERT INTO mnumbers (ord, nb, nbd, nbm, pub, lang) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`;
+                params = [ord, req.body.nb, req.body.nbd, req.body.nbm, pub, lang];
             } else {
-                query = `UPDATE mnumbers SET ord = ?, nb = ?, nbd = ?, nbm = ?, pub = ?, lang = ? WHERE id = ?`;
+                sqlQuery = `UPDATE mnumbers SET ord = $1, nb = $2, nbd = $3, nbm = $4, pub = $5, lang = $6 WHERE id = $7`;
+                params = [ord, req.body.nb, req.body.nbd, req.body.nbm, pub, lang, id];
             }
         } else if (type === 'post' && langList.includes(lang)) {
             if (!id || id < 0) {
-                query = `INSERT INTO post (ord, title, url, descr, content, tags, pub, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-                queryId = `SELECT id FROM post WHERE url = ? AND lang = ?`;
+                sqlQuery = `INSERT INTO post (ord, title, url, descr, content, tags, pub, lang) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`;
+                params = [ord, req.body.title, req.body.url, req.body.descr, req.body.content, req.body.tags, pub, lang];
             } else {
-                query = `UPDATE post SET ord = ?, title = ?, url = ?, descr = ?, content = ?, tags = ?, pub = ? WHERE id = ? AND lang = ?`;
+                sqlQuery = `UPDATE post SET ord = $1, title = $2, url = $3, descr = $4, content = $5, tags = $6, pub = $7 WHERE id = $8 AND lang = $9`;
+                params = [ord, req.body.title, req.body.url, req.body.descr, req.body.content, req.body.tags, pub, id, lang];
             }
         } else {
             if (!id || id < 0) {
-                query = `INSERT INTO messages (ord, title, audio, content, pub, lang, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                queryId = `SELECT id FROM messages WHERE lang = ? AND type = ? AND ord = ?`;
+                sqlQuery = `INSERT INTO messages (ord, title, audio, content, pub, lang, type) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`;
+                params = [ord, req.body.title, req.body.url, req.body.content, pub, lang, type];
             } else {
-                query = `UPDATE messages SET ord = ?, title = ?, audio = ?, content = ?, pub = ?, lang = ?, type = ?, ver = ver + 1 WHERE id = ? AND lang = ?`;
+                sqlQuery = `UPDATE messages SET ord = $1, title = $2, audio = $3, content = $4, pub = $5, lang = $6, type = $7, ver = ver + 1 WHERE id = $8 AND lang = $9`;
+                params = [ord, req.body.title, req.body.url, req.body.content, pub, lang, type, id, lang];
             }
         }
 
-        session = await getApiSession();
-
         let newId = id;
         if (!id || id < 0) {
-            await session.sql(query).bind(
-                type === 'nmbr' ? [ord, req.body.nb, req.body.nbd, req.body.nbm, pub, lang] :
-                    type === 'post' ? [ord, req.body.title, req.body.url, req.body.descr, req.body.content, req.body.tags, pub, lang] :
-                        [ord, req.body.title, req.body.url, req.body.content, pub, lang, type]
-            ).execute();
-
-            const result = await session.sql(queryId).bind(
-                type === 'nmbr' ? [lang, ord] :
-                    type === 'post' ? [req.body.url, lang] :
-                        [lang, type, ord]
-            ).execute();
-
-            const row = result.fetchOne();
-            newId = row[0];
+            const result = await query(sqlQuery, params);
+            newId = result.rows[0].id;
         } else {
-            await session.sql(query).bind(
-                type === 'nmbr' ? [ord, req.body.nb, req.body.nbd, req.body.nbm, pub, lang, id] :
-                    type === 'post' ? [ord, req.body.title, req.body.url, req.body.descr, req.body.content, req.body.tags, pub, id, lang] :
-                        [ord, req.body.title, req.body.url, req.body.content, pub, lang, type, id, lang]
-            ).execute();
+            await query(sqlQuery, params);
         }
 
         console.log("Id from server: ", newId);
@@ -63,10 +47,6 @@ export const sendData = async (req, res) => {
     } catch (error) {
         console.error('Error in sendData:', error);
         res.status(400).json({ error: error.message });
-    } finally {
-        if (session) {
-            await session.close();
-        }
     }
 };
 

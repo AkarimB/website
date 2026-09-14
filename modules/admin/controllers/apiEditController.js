@@ -1,4 +1,4 @@
-import { getApiSession } from '../../../shared/database.js';
+import { query } from '../../../shared/database.js';
 import { langList } from '../../../shared/constants.js';
 
 export const getPostData = async (req, res) => {
@@ -10,66 +10,60 @@ export const getPostData = async (req, res) => {
             return res.status(400).json({ error: 'Invalid ID' });
         }
 
-        let query, params;
+        let sqlQuery, params;
 
         if (type === 'post' && langList.includes(validLang)) {
-            query = `SELECT * FROM post WHERE id = ? AND lang = ?`;
+            sqlQuery = `SELECT * FROM post WHERE id = $1 AND lang = $2`;
             params = [id, validLang];
         } else if (type === 'nmbr') {
-            query = `SELECT * FROM mnumbers WHERE id = ? AND lang = ?`;
+            sqlQuery = `SELECT * FROM mnumbers WHERE id = $1 AND lang = $2`;
             params = [id, validLang];
         } else {
-            query = `SELECT * FROM messages WHERE id = ? AND lang = ? AND type = ?`;
+            sqlQuery = `SELECT * FROM messages WHERE id = $1 AND lang = $2 AND type = $3`;
             params = [id, validLang, type];
         }
 
-        const session = await getApiSession();
+        const result = await query(sqlQuery, params);
+        const row = result.rows[0];
 
-        try {
-            const result = await session.sql(query).bind(params).execute();
-            const row = result.fetchOne();
-
-            if (!row) {
-                return res.status(404).json({ error: 'Post not found' });
-            }
-
-            let data = {};
-
-            if (type === 'post') {
-                data = {
-                    id: row[0],
-                    title: row[1],
-                    descr: row[2],
-                    content: row[3],
-                    url: row[4],
-                    tags: row[5],
-                    pub: row[6],
-                    ord: row[9]
-                };
-            } else if (type === 'nmbr') {
-                data = {
-                    ord: row[0],
-                    nb: row[1],
-                    nbd: row[2],
-                    nbm: row[3],
-                    pub: row[4],
-                    id: row[6]
-                };
-            } else {
-                data = {
-                    id: row[0],
-                    title: row[1],
-                    content: row[2],
-                    url: row[3] ?? '',
-                    pub: row[4],
-                    ord: row[9]
-                };
-            }
-
-            res.json(data);
-        } finally {
-            if (session) await session.close();
+        if (!row) {
+            return res.status(404).json({ error: 'Post not found' });
         }
+
+        let data = {};
+
+        if (type === 'post') {
+            data = {
+                id: row.id,
+                title: row.title,
+                descr: row.descr,
+                content: row.content,
+                url: row.url,
+                tags: row.tags,
+                pub: row.pub,
+                ord: row.ord
+            };
+        } else if (type === 'nmbr') {
+            data = {
+                ord: row.ord,
+                nb: row.nb,
+                nbd: row.nbd,
+                nbm: row.nbm,
+                pub: row.pub,
+                id: row.id
+            };
+        } else {
+            data = {
+                id: row.id,
+                title: row.title,
+                content: row.content,
+                url: row.url ?? '',
+                pub: row.pub,
+                ord: row.ord
+            };
+        }
+
+        res.json(data);
     } catch (err) {
         console.error(`getPostData error: ${err.message}`);
         res.status(500).json({ error: 'Server error' });
@@ -81,29 +75,23 @@ export const getNextOrd = async (req, res) => {
     const validLang = langList.includes(lang) ? lang : 'fr';
 
     try {
-        let query, params;
+        let sqlQuery, params;
 
         if (type === 'post' && langList.includes(validLang)) {
-            query = `SELECT ord FROM post WHERE pub = "p" AND lang = ? ORDER BY ord DESC LIMIT 1`;
+            sqlQuery = `SELECT ord FROM post WHERE pub = 'p' AND lang = $1 ORDER BY ord DESC LIMIT 1`;
             params = [validLang];
         } else if (type === 'nmbr') {
-            query = `SELECT ord FROM mnumbers WHERE lang = ? ORDER BY ord DESC LIMIT 1`;
+            sqlQuery = `SELECT ord FROM mnumbers WHERE lang = $1 ORDER BY ord DESC LIMIT 1`;
             params = [validLang];
         } else {
-            query = `SELECT ord FROM messages WHERE lang = ? AND type = ? ORDER BY id DESC LIMIT 1`;
+            sqlQuery = `SELECT ord FROM messages WHERE lang = $1 AND type = $2 ORDER BY id DESC LIMIT 1`;
             params = [validLang, type];
         }
 
-        const session = await getApiSession();
-
-        try {
-            const result = await session.sql(query).bind(params).execute();
-            const row = result.fetchOne();
-            const ord = row ? row[0] + 1 : 1;
-            res.json({ ord });
-        } finally {
-            if (session) await session.close();
-        }
+        const result = await query(sqlQuery, params);
+        const row = result.rows[0];
+        const ord = row ? row.ord + 1 : 1;
+        res.json({ ord });
     } catch (err) {
         console.error(`getNextOrd error: ${err.message}`);
         res.status(500).json({ error: 'Server error' });

@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 app.disable('x-powered-by');
-const port = 8010;
+const port = process.env.API_PORT || 8010;
 
 app.use('/', routes);
 

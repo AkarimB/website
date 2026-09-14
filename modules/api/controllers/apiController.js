@@ -1,46 +1,36 @@
-import { getApiSession } from '../../../shared/database.js';
+import { query } from '../../../shared/database.js';
 import { sanitizeQuery } from '../../site/utils/helpers.js';
 import { sendAlert } from '../../../shared/alert.js';
 
 async function listPost(type, lang, pageId, searchQuery, res) {
-    let session, order = type == 'post' ? `ord ASC` : `date DESC`;
     try {
         const numberPerPage = 11;
         lang = lang || "fr";
         pageId = parseInt(pageId) || 0;
         if (pageId < 0 || pageId > 100000) pageId = 0;
         const querryOffset = pageId * numberPerPage;
+        const order = type == 'post' ? 'ord ASC' : 'date DESC';
 
         if (lang === "ar" && searchQuery) {
             searchQuery = searchQuery.replace(/[\u0617-\u061A\u064B-\u0652]/g, "");
         }
 
-        const queryPrefix = `SELECT id, title, url, descr, ord FROM post`;
-        let query, params;
+        let result;
 
         if (searchQuery) {
             searchQuery = sanitizeQuery(searchQuery);
-            const ftQuery = searchQuery.split(/\s+/).filter(w => w.length > 0).map(w => `${w}*`).join(' ');
-            query = `SELECT id, title, url, descr, ord FROM (
-                SELECT id, title, url, descr, ord,
-                    MATCH(title, tags, descr) AGAINST(? IN BOOLEAN MODE) AS score
-                FROM post
-                WHERE lang = ? AND pub = 'p'
-                AND MATCH(title, tags, descr) AGAINST(? IN BOOLEAN MODE)
-                ORDER BY score DESC
-                LIMIT ? OFFSET ?
-            ) AS ft_results`;
-            params = [ftQuery, lang, ftQuery, numberPerPage, querryOffset];
+            result = await query(
+                `SELECT id, title, url, descr, ord FROM search_posts($1, $2, $3, $4)`,
+                [searchQuery, lang, numberPerPage, querryOffset]
+            );
         } else {
-            query = `
-                ${queryPrefix} WHERE lang = ? AND pub = "p" ORDER BY ${order} LIMIT ? OFFSET ?
-            `;
-            params = [lang, numberPerPage, querryOffset];
+            result = await query(
+                `SELECT id, title, url, descr, ord FROM post WHERE lang = $1 AND pub = 'p' ORDER BY ${order} LIMIT $2 OFFSET $3`,
+                [lang, numberPerPage, querryOffset]
+            );
         }
 
-        session = await getApiSession();
-        const result = await session.sql(query).bind(...params).execute();
-        const posts = result.fetchAll();
+        const posts = result.rows;
 
         if (posts.length > 0) {
             res.json(posts);
@@ -57,10 +47,6 @@ async function listPost(type, lang, pageId, searchQuery, res) {
             error: 'Internal Server Error',
             message: 'An error occurred while fetching posts'
         });
-    } finally {
-        if (session) {
-            try { await session.close(); } catch {}
-        }
     }
 }
 
@@ -78,23 +64,24 @@ async function getElevation(lat, lng, res) {
 }
 
 async function getPost(lang, id, res) {
-    let session;
     try {
-        session = await getApiSession();
-        const result = await session.sql(
-            `SELECT * FROM post WHERE id = ? AND lang = ? AND pub = "p"`
-        ).bind(id, lang).execute();
-        const post = result.fetchOne();
+        const result = await query(
+            `SELECT * FROM post WHERE id = $1 AND lang = $2 AND pub = 'p'`,
+            [id, lang]
+        );
+        const post = result.rows[0];
 
         if (post) {
-            const nextResult = await session.sql(
-                `SELECT id, title FROM post WHERE lang = ? AND ord > ? AND pub = "p" ORDER BY ord LIMIT 1`
-            ).bind(lang, post[9]).execute();
-            const nextPost = nextResult.fetchOne();
+            const nextResult = await query(
+                `SELECT id, title FROM post WHERE lang = $1 AND ord > $2 AND pub = 'p' ORDER BY ord LIMIT 1`,
+                [lang, post.ord]
+            );
+            const nextPost = nextResult.rows[0];
+            const postData = [post.id, post.title, post.descr, post.content, post.url, post.tags, post.pub, post.date, post.lang, post.ord];
             if (nextPost) {
-                post.push(nextPost);
+                postData.push([nextPost.id, nextPost.title]);
             }
-            res.json(post);
+            res.json(postData);
         } else {
             res.status(404).json({
                 error: 'Not Found',
@@ -108,33 +95,33 @@ async function getPost(lang, id, res) {
             error: 'Internal Server Error',
             message: 'An error occurred while fetching the post'
         });
-    } finally {
-        if (session) {
-            try { await session.close(); } catch {}
-        }
     }
 }
 
 async function getApi(lang, type, ord, res, q) {
-    let session;
     try {
-        let query, params;
+        let result;
+
         if (type === "nmbr") {
-            query = `SELECT * FROM mnumbers WHERE lang = ? AND ord = ? AND pub = "p" LIMIT 1`;
-            params = [lang, ord];
+            result = await query(
+                `SELECT * FROM mnumbers WHERE lang = $1 AND ord = $2 AND pub = 'p' LIMIT 1`,
+                [lang, ord]
+            );
         } else {
             if (q) {
-                query = `SELECT * FROM messages WHERE title LIKE ? AND lang = ? AND type = ? AND pub = "p" LIMIT 1`;
-                params = [`%${q}%`, lang, type];
+                result = await query(
+                    `SELECT * FROM messages WHERE title LIKE $1 AND lang = $2 AND type = $3 AND pub = 'p' LIMIT 1`,
+                    [`%${q}%`, lang, type]
+                );
             } else {
-                query = `SELECT * FROM messages WHERE lang = ? AND type = ? AND ord = ? AND pub = "p" LIMIT 1`;
-                params = [lang, type, ord];
+                result = await query(
+                    `SELECT * FROM messages WHERE lang = $1 AND type = $2 AND ord = $3 AND pub = 'p' LIMIT 1`,
+                    [lang, type, ord]
+                );
             }
         }
 
-        session = await getApiSession();
-        const result = await session.sql(query).bind(...params).execute();
-        const data = result.fetchOne();
+        const data = result.rows[0];
         if (data) {
             res.json(data);
         } else {
@@ -150,21 +137,16 @@ async function getApi(lang, type, ord, res, q) {
             error: 'Internal Server Error',
             message: 'An error occurred while fetching the data'
         });
-    } finally {
-        if (session) {
-            try { await session.close(); } catch {}
-        }
     }
 }
 
 async function getVersion(lang, type, res) {
-    let session;
     try {
-        session = await getApiSession();
-        const result = await session.sql(
-            `SELECT ver FROM messages WHERE lang = ? AND type = ? AND pub = "p" ORDER BY ord`
-        ).bind(lang, type).execute();
-        const versions = result.fetchAll().map(row => row[0]).join(',');
+        const result = await query(
+            `SELECT ver FROM messages WHERE lang = $1 AND type = $2 AND pub = 'p' ORDER BY ord`,
+            [lang, type]
+        );
+        const versions = result.rows.map(row => row.ver).join(',');
         if (versions) {
             res.json(versions);
         } else {
@@ -180,21 +162,16 @@ async function getVersion(lang, type, res) {
             error: 'Internal Server Error',
             message: 'An error occurred while fetching versions'
         });
-    } finally {
-        if (session) {
-            try { await session.close(); } catch {}
-        }
     }
 }
 
 async function getVersions(lang, type, res) {
-    let session;
     try {
-        session = await getApiSession();
-        const result = await session.sql(
-            `SELECT ord, ver FROM messages WHERE lang = ? AND type = ? AND pub = "p" ORDER BY ord`
-        ).bind(lang, type).execute();
-        const data = result.fetchAll();
+        const result = await query(
+            `SELECT ord, ver FROM messages WHERE lang = $1 AND type = $2 AND pub = 'p' ORDER BY ord`,
+            [lang, type]
+        );
+        const data = result.rows;
         if (data.length > 0) {
             res.json(data);
         } else {
@@ -210,10 +187,6 @@ async function getVersions(lang, type, res) {
             error: 'Internal Server Error',
             message: 'An error occurred while fetching versions'
         });
-    } finally {
-        if (session) {
-            try { await session.close(); } catch {}
-        }
     }
 }
 

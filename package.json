@@ -9,11 +9,10 @@
     "admin": "node server/admin.js",
     "site": "node server/site.js",
     "api": "node server/api.js",
-    "sync": "node scripts/sync.js",
-    "search": "node server/search.js"
+    "search": "node server/search.js",
+    "sync": "node scripts/sync.js"
   },
   "dependencies": {
-    "@mysql/xdevapi": "^8.0.35",
     "bcrypt": "latest",
     "connect-redis": "latest",
     "cookie-parser": "latest",
@@ -25,6 +24,8 @@
     "formidable": "latest",
     "i18n": "latest",
     "multer": "latest",
+    "pg": "^8.22.0",
+    "playwright": "^1.63.0",
     "redis": "latest",
     "svg-captcha": "latest"
   },

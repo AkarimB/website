@@ -16,7 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const hostname = '127.0.0.1';
-const port = 8000;
+const port = process.env.SITE_PORT || 8000;
 
 const app = express();
 app.disable('x-powered-by');

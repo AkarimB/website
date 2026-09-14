@@ -23,7 +23,7 @@ import apiEditRoutes from '../modules/admin/routes/api.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const port = 8020;
+const port = process.env.ADMIN_PORT || 8020;
 
 dotenv.config();
 

@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import i18n from 'i18n';
-import { getApiSession } from '../../../shared/database.js';
+import { query } from '../../../shared/database.js';
 import { sendAlert } from '../../../shared/alert.js';
 import { loginHtml, adminHtml, registerHtml } from '../utils/htmlTemplates.js';
 
@@ -36,7 +36,6 @@ export const getLogged = (req, res) => {
 };
 
 export const postRegister = async (req, res) => {
-  let session;
   try {
     const { username, email, full_name, password, captcha } = req.body;
     const lang = req.session?.adminLang || req.query?.lang || 'en';
@@ -54,19 +53,12 @@ export const postRegister = async (req, res) => {
       return res.send(registerHtml(notif, username, password, email, full_name, csrfToken, lang));
     }
 
-    session = await getApiSession();
-    const schema = session.getDefaultSchema();
-    const usersCollection = schema.getTable('users');
+    const existingUser = await query(
+      `SELECT id FROM users WHERE username = $1 OR email = $2`,
+      [username, email]
+    );
 
-    const existingUser = await usersCollection
-      .select(['id'])
-      .where('username = :username OR email = :email')
-      .bind('username', username)
-      .bind('email', email)
-      .execute();
-
-    const existingUserRow = await existingUser.fetchOne();
-    if (existingUserRow) {
+    if (existingUser.rows[0]) {
       const notif = `<p class="error">${t(req, 'userExistsError')}</p>`;
       const csrfToken = req.csrfToken();
       return res.send(registerHtml(notif, username, password, email, full_name, csrfToken, lang));
@@ -74,9 +66,10 @@ export const postRegister = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    await usersCollection.insert('username', 'password_hash', 'email', 'full_name', 'role')
-      .values(username, passwordHash, email, full_name, 'user')
-      .execute();
+    await query(
+      `INSERT INTO users (username, password_hash, email, full_name, role) VALUES ($1, $2, $3, $4, 'user')`,
+      [username, passwordHash, email, full_name]
+    );
 
     res.redirect('/idara/login?lang=' + lang);
 
@@ -87,13 +80,10 @@ export const postRegister = async (req, res) => {
     const notif = `<p class="error">${t(req, 'registerError')}</p>`;
     const csrfToken = req.csrfToken();
     res.send(registerHtml(notif, '', '', '', '', csrfToken, lang));
-  } finally {
-    if (session) { try { await session.close(); } catch {} }
   }
 };
 
 export const postLogin = async (req, res) => {
-  let session;
   try {
     const { username, password, captcha } = req.body;
     const lang = req.session?.adminLang || req.query?.lang || 'en';
@@ -104,17 +94,12 @@ export const postLogin = async (req, res) => {
       return res.send(loginHtml(notif, username, '', csrfToken, lang));
     }
 
-    session = await getApiSession();
-    const schema = session.getDefaultSchema();
-    const usersCollection = schema.getTable('users');
+    const result = await query(
+      `SELECT id, username, password_hash, role FROM users WHERE username = $1`,
+      [username]
+    );
 
-    const result = await usersCollection
-      .select(['id', 'username', 'password_hash', 'role'])
-      .where('username = :username')
-      .bind('username', username)
-      .execute();
-
-    const userRow = await result.fetchOne();
+    const userRow = result.rows[0];
 
     if (!userRow) {
       const notif = `<p class="error">${t(req, 'userNotExist')}</p>`;
@@ -122,7 +107,7 @@ export const postLogin = async (req, res) => {
       return res.send(loginHtml(notif, username, '', csrfToken, lang));
     }
 
-    const isValidPassword = await bcrypt.compare(password, userRow[2]);
+    const isValidPassword = await bcrypt.compare(password, userRow.password_hash);
 
     if (!isValidPassword) {
       const notif = `<p class="error">${t(req, 'invalidPassword')}</p>`;
@@ -130,7 +115,7 @@ export const postLogin = async (req, res) => {
       return res.send(loginHtml(notif, username, '', csrfToken, lang));
     }
 
-    const userRole = userRow[3];
+    const userRole = userRow.role;
     if (userRole !== 'admin' && userRole !== 'moderator') {
       const notif = `<p class="error">${t(req, 'userNotAllowed')}</p>`;
       const csrfToken = req.csrfToken();
@@ -138,8 +123,8 @@ export const postLogin = async (req, res) => {
     }
 
     req.session.user = {
-      id: userRow[0],
-      username: userRow[1],
+      id: userRow.id,
+      username: userRow.username,
       role: userRole
     };
 
@@ -158,8 +143,6 @@ export const postLogin = async (req, res) => {
     const notif = `<p class="error">${t(req, 'loginError')}</p>`;
     const csrfToken = req.csrfToken();
     res.send(loginHtml(notif, '', '', csrfToken, lang));
-  } finally {
-    if (session) { try { await session.close(); } catch {} }
   }
 };
 

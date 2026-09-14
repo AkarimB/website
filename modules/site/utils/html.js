@@ -154,22 +154,30 @@ export function buildCarousel(loadMore) {
 }
 
 export function buildPostCard(post, lang, langUrl) {
+    const id = post.id ?? post[0] ?? '';
+    const title = post.title ?? post[1] ?? '';
+    const url = post.url ?? post[2] ?? '';
+    const descr = post.descr ?? post[3] ?? '';
     return `<div class='extra'>
         <h2>
-            <a target='_blank' href="${langUrl}${post[2]}">${post[1]}</a>
+            <a target='_blank' href="${langUrl}${url}">${title}</a>
         </h2>
-        <p>${post[3]}</p>
-        <p class='shortlink'>${domain}${langUrl}?p=${post[0]}</p>
+        <p>${descr}</p>
+        <p class='shortlink'>${domain}${langUrl}?p=${id}</p>
     </div>`;
 }
 
 export function buildCarouselCard(post, lang, langUrl) {
+    const id = post.id ?? post[0] ?? '';
+    const title = post.title ?? post[1] ?? '';
+    const url = post.url ?? post[2] ?? '';
+    const descr = post.descr ?? post[3] ?? '';
     return `<div class='carousel-card'>
         <h2>
-            <a target='_blank' href="${langUrl}${post[2]}">${post[1]}</a>
+            <a target='_blank' href="${langUrl}${url}">${title}</a>
         </h2>
-        <p>${post[3]}</p>
-        <p class='shortlink'>${domain}${langUrl}?p=${post[0]}</p>
+        <p>${descr}</p>
+        <p class='shortlink'>${domain}${langUrl}?p=${id}</p>
     </div>`;
 }
 
