@@ -28,12 +28,12 @@ export const constructQuery = (type, lang, q, ord, numberPerPage, queryOffset) =
         let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $4 OFFSET $5` : ` ORDER BY ${orderClause} LIMIT $3 OFFSET $4`;
         return `${base}${paramsOrder}${limitOffset}`;
       } else if (type === "nmbr") {
-        let base = `SELECT id, ord, nb, nbd, nbm, pub FROM mnumbers WHERE lang = $1 AND (nb LIKE $2 OR nbd LIKE $2 OR nbm LIKE $2)`;
+        let base = `SELECT id, ord, nb, nbd, nbm, pub FROM mnumbers WHERE lang = $1 AND (nb ILIKE $2 OR nbd ILIKE $2 OR nbm ILIKE $2)`;
         let paramsOrder = hasOrd ? ` AND ord >= $3` : '';
         let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $4 OFFSET $5` : ` ORDER BY ${orderClause} LIMIT $3 OFFSET $4`;
         return `${base}${paramsOrder}${limitOffset}`;
       } else {
-        let base = `SELECT id, title, audio, ord, pub FROM messages WHERE title LIKE $1 AND lang = $2 AND type = $3`;
+        let base = `SELECT id, title, audio, ord, pub FROM messages WHERE title ILIKE $1 AND lang = $2 AND type = $3`;
         let paramsOrder = hasOrd ? ` AND ord >= $4` : '';
         let limitOffset = hasOrd ? ` ORDER BY ${orderClause} LIMIT $5 OFFSET $6` : ` ORDER BY ${orderClause} LIMIT $4 OFFSET $5`;
         return `${base}${paramsOrder}${limitOffset}`;
