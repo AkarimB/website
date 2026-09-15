@@ -322,13 +322,13 @@ function loadMore(type, firstLoad) {
                             const loadMoreBtn = document.getElementById('loadMoreHeader');
                             
                             for (let i = 0 ; i < objJSON.length; i++) {
-                                if(objJSON[i].length > 3) {
+                                if(objJSON[i].id) {
                                     const cardHtml = `<div class='carousel-card'>
                                     <h2>
-                                        <a target='_blank' href="${langUrl}${objJSON[i][2]}">${objJSON[i][1]}</a>
+                                        <a target='_blank' href="${langUrl}${objJSON[i].url}">${objJSON[i].title}</a>
                                     </h2>
-                                    <p>${objJSON[i][3]}</p>
-                                    <p class='shortlink'>${domain}${langUrl}?p=${objJSON[i][0]}</p>
+                                    <p>${objJSON[i].descr}</p>
+                                    <p class='shortlink'>${domain}${langUrl}?p=${objJSON[i].id}</p>
                                     </div>`;
                                     const divContainer = document.createElement('div');
                                     divContainer.innerHTML = cardHtml;
@@ -348,13 +348,13 @@ function loadMore(type, firstLoad) {
                         }
                     } else {
                         for (let i = 0 ; i < objJSON.length; i++) {
-                            if(objJSON[i].length > 3) {
+                            if(objJSON[i].id) {
                                 htmlContent += `<div class='extra'>
                                 <h2>
-                                    <a target='_blank' href="${langUrl}${objJSON[i][2]}">${objJSON[i][1]}</a>
+                                    <a target='_blank' href="${langUrl}${objJSON[i].url}">${objJSON[i].title}</a>
                                 </h2>
-                                <p>${objJSON[i][3]}</p>
-                                <p class='shortlink'>${domain}${langUrl}?p=${objJSON[i][0]}</p>
+                                <p>${objJSON[i].descr}</p>
+                                <p class='shortlink'>${domain}${langUrl}?p=${objJSON[i].id}</p>
                                 </div>`;
                             }
                         }
