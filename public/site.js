@@ -159,12 +159,12 @@ function loadFeaturedPost() {
                 return loadFeaturedPost();
             }
             var post = posts[pos.index];
-            if (!post || post.length < 4) return;
+            if (!post || !post.id) return;
 
             container.innerHTML =
-                '<h2><a target="_blank" href="' + langUrl + post[2] + '">' + post[1] + '</a></h2>' +
-                '<p>' + post[3] + '</p>' +
-                '<p class="shortlink">' + domain + langUrl + '?p=' + post[0] + '</p>';
+                '<h2><a target="_blank" href="' + langUrl + post.url + '">' + post.title + '</a></h2>' +
+                '<p>' + post.descr + '</p>' +
+                '<p class="shortlink">' + domain + langUrl + '?p=' + post.id + '</p>';
 
             var nextIndex = pos.index + 1;
             var nextPage = pos.page;
