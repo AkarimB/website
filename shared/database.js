@@ -11,9 +11,9 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  max: parseInt(process.env.DB_MAX_CONNECTIONS, 10) || 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  max: parseInt(process.env.DB_MAX_CONNECTIONS, 10) || 30,
+  idleTimeoutMillis: 60000,
+  connectionTimeoutMillis: 5000,
 });
 
 pool.on('error', (err) => {
