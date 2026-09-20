@@ -32,3 +32,4 @@ uploads/
 
 # Sync logs
 sync.log
+public/data/tafsir/*
