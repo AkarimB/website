@@ -13,10 +13,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 2. Create trigger for 'posts' table
-DROP TRIGGER IF EXISTS trigger_posts_updated_at ON posts;
-CREATE TRIGGER trigger_posts_updated_at
-BEFORE UPDATE ON posts
+-- 2. Create trigger for 'post' table
+DROP TRIGGER IF EXISTS trigger_post_updated_at ON post;
+CREATE TRIGGER trigger_post_updated_at
+BEFORE UPDATE ON post
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at_timestamp();
 
