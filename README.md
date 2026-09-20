@@ -1,7 +1,6 @@
 # Islam.ms v2
 
 Multilingual Islamic content website — server-side rendered with Node.js/Express.
- connecct to db with psql: sudo -u postgres psql -d islam_site
 
 ## Architecture
 
@@ -244,7 +243,7 @@ journalctl -u site -f
 
 ```
 origin  git@github.com-site:AkarimB/website.git  (GitHub)
-vmi     /srv/site.git                              (local bare repo)
+vmi     /srv/site.git                            (local bare repo)
 ```
 
 ### Getting Started
@@ -256,6 +255,12 @@ cp /srv/site/.env .env  # Copy production env (or create your own)
 npm run site     # Start site server on :8000
 npm run api      # Start API server on :8010
 npm run admin    # Start admin server on :8020
+```
+
+### Connecct to Postgresql:
+
+```bash
+sudo -u postgres psql -d islam_site
 ```
 
 ### npm Scripts
