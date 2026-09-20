@@ -1,5 +1,7 @@
 -- Islam.ms Schema for PostgreSQL
 -- Run: psql -U postgres -d islam_site -f migrations/001_create_tables.sql
+-- Export the entire schema structure without data to a file named islam_site_structure.sql
+--sudo -u postgres pg_dump -d islam_site --schema-only > islam_site_structure.sql
 
 -- Enable extensions
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
