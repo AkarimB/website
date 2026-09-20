@@ -8,21 +8,21 @@ BEGIN;
 CREATE OR REPLACE FUNCTION set_updated_at_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
+    NEW.date = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 -- 2. Create trigger for 'post' table
-DROP TRIGGER IF EXISTS trigger_post_updated_at ON post;
-CREATE TRIGGER trigger_post_updated_at
+DROP TRIGGER IF EXISTS trigger_post_date ON post;
+CREATE TRIGGER trigger_post_date
 BEFORE UPDATE ON post
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at_timestamp();
 
 -- 3. Create trigger for 'messages' table
-DROP TRIGGER IF EXISTS trigger_messages_updated_at ON messages;
-CREATE TRIGGER trigger_messages_updated_at
+DROP TRIGGER IF EXISTS trigger_messages_date ON messages;
+CREATE TRIGGER trigger_messages_date
 BEFORE UPDATE ON messages
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at_timestamp();
