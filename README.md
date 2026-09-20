@@ -1,12 +1,13 @@
 # Islam.ms v2
 
 Multilingual Islamic content website — server-side rendered with Node.js/Express.
+ connecct to db with psql: sudo -u postgres psql -d islam_site
 
 ## Architecture
 
 ```
                     ┌─────────────────────────────────────┐
-                    │           Nginx / Cloudflare         │
+                    │           Nginx / Cloudflare        │
                     └──────┬──────────┬──────────┬────────┘
                            │          │          │
                     ┌──────▼───┐ ┌────▼────┐ ┌───▼──────┐
@@ -15,8 +16,8 @@ Multilingual Islamic content website — server-side rendered with Node.js/Expre
                     └──────┬───┘ └────┬────┘ └───┬──────┘
                            │          │          │
                     ┌──────▼──────────▼──────────▼──────┐
-                    │              MySQL X DevAPI        │
-                    │            (port 33060)            │
+                    │              MySQL X DevAPI       │
+                    │            (port 33060)           │
                     └───────────────────────────────────┘
                            │
                     ┌──────▼──────────┐
