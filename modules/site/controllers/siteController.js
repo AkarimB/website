@@ -102,7 +102,7 @@ async function listPost(lang, currentPageId, q, res) {
             <link type="text/css" rel="stylesheet" href="/audio-player.css?v=1">
             <meta name="description" content="${siteDesc}">
             ${metaGraph}
-            <script src="/site.js?v=10" defer></script>
+            <script src="/site.js?v=11" defer></script>
             <script src="/audio-player.js?v=1" defer></script>
         </head>
         <body>
@@ -216,7 +216,7 @@ async function getPost(lang, url, res) {
             <link type="text/css" rel="stylesheet" href="/audio-player.css?v=1">
             <meta name="description" content="${result.descr}">
             ${metaGraph}
-            <script src="/site.js?v=10" defer></script>
+            <script src="/site.js?v=11" defer></script>
             <script src="/audio-player.js?v=1" defer></script>
         </head>
         <body>
