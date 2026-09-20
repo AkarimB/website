@@ -15,8 +15,8 @@ Multilingual Islamic content website — server-side rendered with Node.js/Expre
                     └──────┬───┘ └────┬────┘ └───┬──────┘
                            │          │          │
                     ┌──────▼──────────▼──────────▼──────┐
-                    │              MySQL X DevAPI       │
-                    │            (port 33060)           │
+                    │           PostgreSQL              │
+                    │           (port 5432)             │
                     └───────────────────────────────────┘
                            │
                     ┌──────▼──────────┐
@@ -142,7 +142,7 @@ site/
 |-----------|------------|
 | Runtime | Node.js (ES Modules) |
 | Web Framework | Express.js |
-| Database | MySQL 8.x via `@mysql/xdevapi` (X Protocol) |
+| Database | PostgreSQL |
 | Session Store | Redis via `connect-redis` + `express-session` |
 | Authentication | bcrypt, CSRF (`csrf`), SVG CAPTCHA (`svg-captcha`) |
 | File Uploads | Multer |
@@ -164,12 +164,12 @@ REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 REDIS_PASSWORD=<redis-password>
 
-# MySQL (X DevAPI protocol, port 33060)
-MYSQL_HOST=127.0.0.1
-MYSQL_PORT=33060
-MYSQL_USER=islam_user
-MYSQL_PASSWORD=<mysql-password>
-MYSQL_DATABASE=islam_site
+# PostgreSQL
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=<postgres-password>
+DB_NAME=islam_site
 
 # Environment
 NODE_ENV=production
