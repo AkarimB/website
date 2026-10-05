@@ -13,7 +13,14 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   max: parseInt(process.env.DB_MAX_CONNECTIONS, 10) || 30,
   idleTimeoutMillis: 60000,
-  connectionTimeoutMillis: 5000,
+  // Wait this long for a free client before giving up. Under load this must exceed
+  // the slowest expected query, otherwise queued requests fail with
+  // "timeout exceeded when trying to connect" while the database is perfectly healthy.
+  connectionTimeoutMillis: 15000,
+  // Cap how long a single query may run, so a pathological search cannot hold a
+  // pool slot indefinitely and starve every other request.
+  query_timeout: 10000,
+  statement_timeout: 10000,
 });
 
 pool.on('error', (err) => {
