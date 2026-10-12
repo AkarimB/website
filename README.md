@@ -15,8 +15,9 @@ Multilingual Islamic content website — server-side rendered with Node.js/Expre
                     └──────┬───┘ └────┬────┘ └───┬──────┘
                            │          │          │
                     ┌──────▼──────────▼──────────▼──────┐
-                    │           PostgreSQL              │
-                    │           (port 5432)             │
+                    │           PostgreSQL 18           │
+                    │            (port 5432)            │
+                    │          db: islam_site           │
                     └───────────────────────────────────┘
                            │
                     ┌──────▼──────────┐
@@ -43,7 +44,7 @@ site/
 │   └── search.js            # Search microservice (port 8002, experimental)
 │
 ├── shared/                  # Shared modules
-│   ├── database.js          # MySQL X DevAPI connection pool
+│   ├── database.js          # PostgreSQL (pg) connection pool
 │   ├── constants.js         # Languages, content types, domain
 │   └── alert.js             # Email error alerts via sendmail
 │
@@ -67,9 +68,16 @@ site/
 │       ├── controllers/     # auth, post, upload, data, apiEdit, apiList
 │       └── utils/           # cloudflare.js, htmlTemplates.js, helpers.js
 │
+├── migrations/              # Numbered SQL migrations (see Database)
+│   ├── 001_create_tables.sql
+│   ├── 002_create_indexes.sql
+│   ├── 003_search_function.sql
+│   ├── 004_add_updated_at_trigger.sql
+│   └── 005_search_performance.sql
+│
 ├── scripts/
 │   ├── on-deploy.sh         # Post-deploy script (npm ci, chown)
-│   └── sync.js              # MySQL → Qdrant vector sync (experimental)
+│   └── sync.js              # PostgreSQL → Qdrant vector sync (experimental)
 │
 ├── locales/                 # i18n translations
 │   ├── fr.json              # French
@@ -136,13 +144,29 @@ site/
 - Versioning support
 - Google Maps Elevation API integration
 
+### Search
+
+Search runs entirely inside PostgreSQL via the `search_posts()` SQL function, called
+by both the site (`?q=`) and API (`/list/post/:lang?q=`) paths.
+
+Ranking combines full-text matches across four columns with trigram similarity on
+`title`, `descr`, and `tags`. Content-level matching is full-text only — `similarity()`
+is deliberately not applied to `content`, since it matched zero rows at the 0.1
+threshold and dominated query cost.
+
+The `post` table carries four generated `tsvector` columns (`title_tsv`, `descr_tsv`,
+`tags_tsv`, `content_tsv`), each with a GIN index. Both the filter and the ranking read
+these columns, so the planner resolves the query with a `BitmapOr` across all four
+indexes instead of scanning every row of the language. See
+[`migrations/005_search_performance.sql`](migrations/005_search_performance.sql).
+
 ## Tech Stack
 
 | Component | Technology |
 |-----------|------------|
 | Runtime | Node.js (ES Modules) |
 | Web Framework | Express.js |
-| Database | PostgreSQL |
+| Database | PostgreSQL 18 via `pg` (node-postgres) |
 | Session Store | Redis via `connect-redis` + `express-session` |
 | Authentication | bcrypt, CSRF (`csrf`), SVG CAPTCHA (`svg-captcha`) |
 | File Uploads | Multer |
@@ -164,12 +188,14 @@ REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 REDIS_PASSWORD=<redis-password>
 
-# PostgreSQL
-DB_HOST=localhost
+DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=<postgres-password>
 DB_NAME=islam_site
+# Pool size per Node process. Keep the sum across all processes
+# (site + api + admin) below the server's max_connections.
+DB_MAX_CONNECTIONS=30
 
 # Environment
 NODE_ENV=production
@@ -257,7 +283,7 @@ npm run api      # Start API server on :8010
 npm run admin    # Start admin server on :8020
 ```
 
-### Connecct to Postgresql:
+### Connect to PostgreSQL
 
 ```bash
 sudo -u postgres psql -d islam_site
@@ -271,7 +297,7 @@ sudo -u postgres psql -d islam_site
 | `npm run api` | `node server/api.js` | Start JSON API |
 | `npm run admin` | `node server/admin.js` | Start admin dashboard |
 | `npm run search` | `node server/search.js` | Start search microservice |
-| `npm run sync` | `node scripts/sync.js` | Sync MySQL → Qdrant |
+| `npm run sync` | `node scripts/sync.js` | Sync PostgreSQL → Qdrant |
 
 ## API Endpoints
 
@@ -324,8 +350,84 @@ The following features exist in the codebase but are **not active in production*
 - Reranking for relevance
 
 ### Vector Sync (`scripts/sync.js`)
-- Extracts posts from MySQL
+- Extracts posts from PostgreSQL
 - Chunks text (500 words, 50 overlap)
 - Generates embeddings and upserts to Qdrant
 
 To test: `npm run search` (requires QDRANT_URL in `.env`)
+
+Note: `@qdrant/js-client-rest` is not currently listed in `package.json`, so these two
+entry points will not run until it is installed.
+
+---
+
+## Database
+
+### Connection Pool
+
+`shared/database.js` exports a single `pg.Pool` per Node process. Both the site, API,
+and admin servers load it, so `DB_MAX_CONNECTIONS` is a **per-process** budget: three
+processes at 30 each could reach 90 connections against a default `max_connections` of
+100. Size it with that multiplier in mind.
+
+```js
+max: parseInt(process.env.DB_MAX_CONNECTIONS, 10) || 30,
+idleTimeoutMillis: 60000,
+connectionTimeoutMillis: 15000,
+query_timeout: 10000,
+statement_timeout: 10000,
+```
+
+`connectionTimeoutMillis` does double duty in `pg-pool`: it is both the TCP connect
+timeout and how long a request waits for a free client. When every slot is busy, a
+queued request fails with `timeout exceeded when trying to connect` — which reads like
+a database outage but means only that the pool was saturated. Keep it comfortably above
+the slowest expected query, and use `query_timeout`/`statement_timeout` to stop one
+slow query from holding a slot.
+
+Search and post reads return **503** rather than redirecting on database failure.
+Redirecting back to the same search URL re-triggers the failing query and turns a
+degraded page into a self-sustaining retry loop.
+
+### Migrations
+
+Numbered SQL files in `migrations/`, applied in order to the `islam_site` database:
+
+```bash
+sudo -u postgres psql -d islam_site -f migrations/00N_<name>.sql
+```
+
+| Migration | Purpose |
+|-----------|---------|
+| `001_create_tables.sql` | `post`, `messages`, `mnumbers`, `users`, `site_settings` tables |
+| `002_create_indexes.sql` | B-tree indexes for listing, GIN `tsvector` + trigram indexes for search (the `*_fts` expression indexes are superseded by `005`) |
+| `003_search_function.sql` | Original `search_posts()` (PL/pgSQL) |
+| `004_add_updated_at_trigger.sql` | `updated_at` trigger on `post` and `messages` |
+| `005_search_performance.sql` | Generated `tsvector` columns + index-driven `search_posts()` |
+
+`migrations/islam_site_structure.sql` is a schema-only dump kept alongside them, not a
+migration to run.
+
+Each migration is idempotent where practical (`IF NOT EXISTS`) and wraps itself in a
+transaction, so a re-run is safe. `005` alters `search_posts()`'s return type (`url`
+becomes `TEXT`), so it drops and recreates the function rather than replacing it — check
+for other callers if you add one later.
+
+### Search Schema
+
+```sql
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'post' AND column_name LIKE '%_tsv';
+```
+
+```
+title_tsv | descr_tsv | tags_tsv | content_tsv   -- tsvector, GENERATED ... STORED
+```
+
+Generated columns are maintained by PostgreSQL on write, so the application never sets
+them. Each has a GIN index (`idx_post_*_tsv`).
+
+Trigram indexes exist on `title`, `descr`, and `tags` only (`gin_trgm_ops`) — these
+serve the `similarity()` ranking terms. There is intentionally no trigram index on
+`content`; adding one would balloon the index for a term that contributes nothing.

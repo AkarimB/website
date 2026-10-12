@@ -126,7 +126,14 @@ async function listPost(lang, currentPageId, q, res) {
     } catch (err) {
         console.log("listPost error: " + err.message);
         sendAlert('Site listPost Error', `${err.message}\nFunction: listPost\nLang: ${lang}`);
-        redirectToPage(langUrl, res);
+        // Do not redirect back to the same search URL: that re-triggers the failing
+        // query and turns a degraded page into a self-sustaining retry loop.
+        if (!res.headersSent) {
+            res.writeHead(503, { 'Content-Type': 'text/html; charset=utf-8', 'Retry-After': '30' });
+            res.end('<!DOCTYPE html><html><head><meta charset="utf-8"><title>503</title></head><body><h1>503</h1><p>Service temporarily unavailable, please retry.</p></body></html>');
+        } else {
+            res.end();
+        }
     }
 }
 
@@ -242,7 +249,14 @@ async function getPost(lang, url, res) {
     } catch (err) {
         console.log("error getPost: " + err.message);
         sendAlert('Site getPost Error', `${err.message}\nFunction: getPost\nLang: ${lang}\nURL: ${url}`);
-        redirectToPage(langUrl, res);
+        // The database is unavailable, so redirecting to the listing page would only
+        // queue another doomed query. Fail fast instead.
+        if (!res.headersSent) {
+            res.writeHead(503, { 'Content-Type': 'text/html; charset=utf-8', 'Retry-After': '30' });
+            res.end('<!DOCTYPE html><html><head><meta charset="utf-8"><title>503</title></head><body><h1>503</h1><p>Service temporarily unavailable, please retry.</p></body></html>');
+        } else {
+            res.end();
+        }
     }
 }
 
