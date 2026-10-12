@@ -90,7 +90,7 @@ export const getNextOrd = async (req, res) => {
 
         const result = await query(sqlQuery, params);
         const row = result.rows[0];
-        const ord = row ? row.ord + 1 : 1;
+        const ord = row ? Number(row.ord) + 1 : 1;
         res.json({ ord });
     } catch (err) {
         console.error(`getNextOrd error: ${err.message}`);
