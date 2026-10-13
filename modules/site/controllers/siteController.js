@@ -99,11 +99,11 @@ async function listPost(lang, currentPageId, q, res) {
             <link rel="icon" type="image/png" href="/favicon.png">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>${siteTitle}</title>
-            <link type="text/css" rel="stylesheet" href="/style_${slg}.css?v=9">
+            <link type="text/css" rel="stylesheet" href="/style_${slg}.css?v=10">
             <link type="text/css" rel="stylesheet" href="/audio-player.css?v=1">
             <meta name="description" content="${siteDesc}">
             ${metaGraph}
-            <script src="/site.js?v=11" defer></script>
+            <script src="/site.js?v=12" defer></script>
             <script src="/audio-player.js?v=1" defer></script>
         </head>
         <body>
@@ -220,11 +220,11 @@ async function getPost(lang, url, res) {
             <link rel="icon" type="image/png" href="/favicon.png">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>${result.title}</title>
-            <link type="text/css" rel="stylesheet" href="/style_${slg}.css?v=9">
+            <link type="text/css" rel="stylesheet" href="/style_${slg}.css?v=10">
             <link type="text/css" rel="stylesheet" href="/audio-player.css?v=1">
             <meta name="description" content="${result.descr}">
             ${metaGraph}
-            <script src="/site.js?v=11" defer></script>
+            <script src="/site.js?v=12" defer></script>
             <script src="/audio-player.js?v=1" defer></script>
         </head>
         <body>
