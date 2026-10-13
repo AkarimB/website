@@ -58,8 +58,10 @@ export const purgeCache = async (req, res) => {
 
         if (type === 'post' && url) {
             purgeUrls.push(`${domain}${langUrl}${url}`);
+            purgeUrls.push(`https://api.islam.ms/list/post/${lang}/?t=header`);
         } else {
             purgeUrls.push(`https://api.islam.ms/${type}/${lang}/${ord}`);
+            purgeUrls.push(`https://api.islam.ms/list/${type}/${lang}/`);
             if (type != 'nmbr') {
                 purgeUrls.push(`https://api.islam.ms/${type}/${lang}`);
                 purgeUrls.push(`https://api.islam.ms/v/${type}/${lang}`);
