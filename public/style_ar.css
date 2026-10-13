@@ -599,6 +599,43 @@ a:hover {
     gap: 10px;
 }
 
+
+/* Date carousel - vertical layout */
+.carousel-wrapper:has(#dateCarousel) {
+    flex-direction: column;
+    align-items: center;
+    max-height: 350px;
+    height: 350px;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#dateCarousel.carousel-content {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    gap: 11px;
+    padding: 11px;
+    align-items: stretch;
+    scroll-behavior: smooth;
+    flex: 0 1 auto;
+    width: 100%;
+}
+
+.date-carousel-card {
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 100%;
+    border: 1px solid var(--border);
+    padding: 9px;
+    border-radius: 7px;
+    word-break: break-word;
+    box-sizing: border-box;
+}
+
 .ads {
   margin: 10px auto 25px; 
   display: block;       
@@ -612,7 +649,8 @@ a:hover {
   min-width: 250px; 
 }
 
-#loadMoreHeader {
+#loadMoreHeader,
+#loadMoreDate {
     font-size: calc(16pt * var(--font-scale));
     color: var(--link);
     padding: 9px;
@@ -626,7 +664,7 @@ a:hover {
     align-self: center;
 }
 
-#loadMoreHeader:hover, #loadMore:hover, #loadPost:hover {
+#loadMoreHeader:hover, #loadMoreDate:hover, #loadMore:hover, #loadPost:hover {
     background-color: var(--hover-bg);
     color: var(--hover-text);
 }
@@ -653,4 +691,11 @@ a:hover {
     font-size: calc(11px * var(--font-scale));
     font-weight: bold;
     font-family: sans-serif;
+}
+
+@media (max-width: 600px) {
+    #dateCarousel.carousel-content {
+        height: 350px !important;
+        max-height: 350px !important;
+    }
 }

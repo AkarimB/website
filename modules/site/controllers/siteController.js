@@ -3,7 +3,7 @@ import { langList } from '../../../shared/constants.js';
 import { query } from '../../../shared/database.js';
 import { sendAlert } from '../../../shared/alert.js';
 import { getLangUrl, getSlg, sanitizeArabic, sanitizeQuery, buildPagination, redirectToPage, qsearch } from '../utils/helpers.js';
-import { buildMetaGraph, buildHiddenInputs, buildHeader, buildFooter, buildCarousel, buildPostCard, buildSearchForm } from '../utils/html.js';
+import { buildMetaGraph, buildHiddenInputs, buildHeader, buildFooter, buildCarousel, buildDateCarousel, buildPostCard, buildSearchForm } from '../utils/html.js';
 
 async function listPost(lang, currentPageId, q, res) {
     if (!lang || !langList.includes(lang)) {
@@ -83,12 +83,13 @@ async function listPost(lang, currentPageId, q, res) {
         const metaGraph = buildMetaGraph({ siteTitle, siteDesc, ogUrl, lang });
         const hiddenInputs = buildHiddenInputs({ nextId: currentPageId, lang, transLoadMore: loadMoreText });
         const carouselHtml = buildCarousel(loadMoreText);
+        const dateCarouselHtml = buildDateCarousel(loadMoreText);
 
         let contentOrder;
         if (q && q.trim() !== '') {
-            contentOrder = `${contentHtml}${loadButton}${carouselHtml}`;
+            contentOrder = `${carouselHtml}${dateCarouselHtml}${contentHtml}${loadButton}`;
         } else {
-            contentOrder = `${carouselHtml}${contentHtml}${loadButton}`;
+            contentOrder = `${carouselHtml}${dateCarouselHtml}${contentHtml}${loadButton}`;
         }
 
         const html = `<!DOCTYPE html>

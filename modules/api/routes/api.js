@@ -27,6 +27,16 @@ router.get('/list/post/:lang{/:pageId}', async (req, res, next) => {
         next(error);
     }
 });
+router.get('/list/date/:lang{/:pageId}', async (req, res, next) => {
+    const { lang, pageId } = req.params;
+    const { q } = req.query;
+    try {
+        await listPost('date', lang, pageId, q, res);
+    } catch (error) {
+        next(error);
+    }
+});
+
 
 router.get('/:type/:lang/:id', async (req, res, next) => {
     const { type, lang, id } = req.params;

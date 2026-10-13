@@ -276,11 +276,19 @@ function loadMore(type, firstLoad) {
 
     if (firstLoad) {
        sessionStorage.setItem('headerPageId', mainPageId+1);
-       sessionStorage.setItem('normalPageId', mainPageId+1); 
+       sessionStorage.setItem('normalPageId', mainPageId+1);
+       sessionStorage.setItem('datePageId', mainPageId+1);
        pageId = mainPageId;
     } else {
-       let storedId = (type == 'header') ? sessionStorage.getItem('headerPageId') : sessionStorage.getItem('normalPageId');
-    pageId = parseInt(storedId);
+       let storedId;
+       if (type == 'header') {
+           storedId = sessionStorage.getItem('headerPageId');
+       } else if (type == 'date') {
+           storedId = sessionStorage.getItem('datePageId');
+       } else {
+           storedId = sessionStorage.getItem('normalPageId');
+       }
+       pageId = parseInt(storedId);
     }
 
 
@@ -291,17 +299,25 @@ function loadMore(type, firstLoad) {
     const appendQuery = (type == 'header') ? `/?t=${type}` : (query ? `/?q=${query}`: "")
     const buttonDiv = document.getElementById("loadMore")
     const headerButtonDiv = document.getElementById("loadMoreHeader")
+    const dateButtonDiv = document.getElementById("loadMoreDate")
     const contentDiv = document.getElementById("content")
     const headerCarousel = document.getElementById("headerCarousel")
+    const dateCarousel = document.getElementById("dateCarousel")
 
 
     if (type == 'header' && !headerCarousel) return;
+    if (type == 'date' && !dateCarousel) return;
     
     if (lang) {
-        const buttonToDisable = (type == 'header') ? headerButtonDiv : buttonDiv;
+        const buttonToDisable = (type == 'header') ? headerButtonDiv : (type == 'date') ? dateButtonDiv : buttonDiv;
         if (buttonToDisable) buttonToDisable.disabled = true;
         
-        var link = `https://api.islam.ms/list/post/${lang}/${pageId}${appendQuery}`;
+        var link;
+        if (type == 'date') {
+            link = `https://api.islam.ms/list/date/${lang}/${pageId}`;
+        } else {
+            link = `https://api.islam.ms/list/post/${lang}/${pageId}${appendQuery}`;
+        }
         
         fetch(link)
             .then(response => {
@@ -344,7 +360,33 @@ function loadMore(type, firstLoad) {
                                 loadMoreBtn.style.display = 'none';
                             }
                         } else {
-                            headerButtonDiv.style.display = 'none';
+                            if (headerButtonDiv) headerButtonDiv.style.display = 'none';
+                        }
+                    } else if (type == 'date') {
+                        if (objJSON.length > 0) {
+                            const loadMoreBtn = document.getElementById('loadMoreDate');
+                            
+                            for (let i = 0 ; i < objJSON.length; i++) {
+                                if(objJSON[i].id) {
+                                    const cardHtml = `<div class='date-carousel-card'>
+                                    <h2>${objJSON[i].title}</h2>
+                                    ${objJSON[i].content || ''}
+                                    </div>`;
+                                    const divContainer = document.createElement('div');
+                                    divContainer.innerHTML = cardHtml;
+                                    dateCarousel.insertBefore(divContainer, loadMoreBtn);
+                                }
+                            }
+
+                             if (!firstLoad) sessionStorage.setItem('datePageId', pageId+1);
+                            
+                            if (objJSON.length >= numberPerPage) {
+                                if (loadMoreBtn) loadMoreBtn.disabled = false;
+                            } else {
+                                if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+                            }
+                        } else {
+                            if (dateButtonDiv) dateButtonDiv.style.display = 'none';
                         }
                     } else {
                         for (let i = 0 ; i < objJSON.length; i++) {
@@ -385,17 +427,24 @@ function loadMore(type, firstLoad) {
 
 
 
-function initCarouselDrag() {
-    const carousel = document.getElementById('headerCarousel');
+function initCarouselDrag(carouselId) {
+    const carousel = document.getElementById(carouselId);
+    if (!carousel) return;
     let isDown = false;
-    let startX;
-    let scrollLeft;
+    let startX, startY;
+    let scrollLeft, scrollTop;
+    const isDate = (carouselId === 'dateCarousel');
 
     carousel.addEventListener('mousedown', (e) => {
         isDown = true;
         carousel.style.cursor = 'grabbing';
-        startX = e.pageX - carousel.offsetLeft;
-        scrollLeft = carousel.scrollLeft;
+        if (isDate) {
+            startY = e.pageY - carousel.offsetTop;
+            scrollTop = carousel.scrollTop;
+        } else {
+            startX = e.pageX - carousel.offsetLeft;
+            scrollLeft = carousel.scrollLeft;
+        }
     });
 
     carousel.addEventListener('mouseleave', () => {
@@ -411,9 +460,15 @@ function initCarouselDrag() {
     carousel.addEventListener('mousemove', (e) => {
         if (!isDown) return;
         e.preventDefault();
-        const x = e.pageX - carousel.offsetLeft;
-        const walk = (x - startX) * 2;
-        carousel.scrollLeft = scrollLeft - walk;
+        if (isDate) {
+            const y = e.pageY - carousel.offsetTop;
+            const walk = (y - startY) * 2;
+            carousel.scrollTop = scrollTop - walk;
+        } else {
+            const x = e.pageX - carousel.offsetLeft;
+            const walk = (x - startX) * 2;
+            carousel.scrollLeft = scrollLeft - walk;
+        }
     });
 
     carousel.style.cursor = 'grab';
@@ -422,6 +477,10 @@ function initCarouselDrag() {
 window.addEventListener('load', () => {
     if (document.getElementById("headerCarousel")) {
         loadMore('header', true);
-        initCarouselDrag();
+        initCarouselDrag('headerCarousel');
+    }
+    if (document.getElementById("dateCarousel")) {
+        loadMore('date', true);
+        initCarouselDrag('dateCarousel');
     }
 });

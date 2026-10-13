@@ -9,28 +9,43 @@ async function listPost(type, lang, pageId, searchQuery, res) {
         pageId = parseInt(pageId) || 0;
         if (pageId < 0 || pageId > 100000) pageId = 0;
         const querryOffset = pageId * numberPerPage;
-        const order = type == 'post' ? 'ord ASC' : 'date DESC';
 
         if (lang === "ar" && searchQuery) {
             searchQuery = searchQuery.replace(/[\u0617-\u061A\u064B-\u0652]/g, "");
         }
 
         let result;
+        let posts = [];
 
-        if (searchQuery) {
-            searchQuery = sanitizeQuery(searchQuery);
+        if (type === 'date') {
+            const order = 'ord DESC';
             result = await query(
-                `SELECT id, title, url, descr, ord FROM search_posts($1, $2, $3, $4)`,
-                [searchQuery, lang, numberPerPage, querryOffset]
+                `SELECT id, title, audio, content, ord FROM messages WHERE lang = $1 AND type = $2 AND pub = 'p' ORDER BY ${order} LIMIT $3 OFFSET $4`,
+                [lang, 'date', numberPerPage, querryOffset]
             );
+            posts = result.rows.map(row => ({
+                id: row.id,
+                title: row.title,
+                audio: row.audio,
+                content: row.content,
+                ord: row.ord
+            }));
         } else {
-            result = await query(
-                `SELECT id, title, url, descr, ord FROM post WHERE lang = $1 AND pub = 'p' ORDER BY ${order} LIMIT $2 OFFSET $3`,
-                [lang, numberPerPage, querryOffset]
-            );
+            const order = type == 'post' ? 'ord ASC' : 'date DESC';
+            if (searchQuery) {
+                searchQuery = sanitizeQuery(searchQuery);
+                result = await query(
+                    `SELECT id, title, url, descr, ord FROM search_posts($1, $2, $3, $4)`,
+                    [searchQuery, lang, numberPerPage, querryOffset]
+                );
+            } else {
+                result = await query(
+                    `SELECT id, title, url, descr, ord FROM post WHERE lang = $1 AND pub = 'p' ORDER BY ${order} LIMIT $2 OFFSET $3`,
+                    [lang, numberPerPage, querryOffset]
+                );
+            }
+            posts = result.rows;
         }
-
-        const posts = result.rows;
 
         if (posts.length > 0) {
             res.json(posts);

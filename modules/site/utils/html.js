@@ -153,6 +153,15 @@ export function buildCarousel(loadMore) {
     </div>`;
 }
 
+
+export function buildDateCarousel(loadMore) {
+    return `<div class="carousel-wrapper">
+        <div id="dateCarousel" class="carousel-content">
+            <button type="button" onclick="loadMore('date', false)" id="loadMoreDate">${loadMore}</button>
+        </div>
+    </div>`;
+}
+
 export function buildPostCard(post, lang, langUrl) {
     const id = post.id ?? post[0] ?? '';
     const title = post.title ?? post[1] ?? '';
